@@ -1,0 +1,4 @@
+include 'auth-app'
+include 'auth-wlpcfg'
+
+rootProject.name='gameon-auth'

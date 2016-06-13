@@ -1,0 +1,108 @@
+apply plugin: 'eclipse'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:2.6'
+    }
+}
+
+def dockerHost = "https://localhost:2376"
+if (null != System.getenv("DOCKER_HOST"))
+{
+    dockerHost = System.getenv('DOCKER_HOST')
+
+    if (dockerHost.indexOf('tcp') == 0)
+    {
+        dockerHost = dockerHost.replace('tcp','https')
+    }
+}
+
+def dockerCertPath = ""
+if (null != System.getenv('DOCKER_CERT_PATH')){
+    dockerCertPath = System.getenv('DOCKER_CERT_PATH')
+}
+
+def localEnvironment = ["LICENSE=accept",
+            "TWITTER_CONSUMER_KEY=" + System.getenv('TWITTER_CONSUMER_KEY'),
+            "TWITTER_CONSUMER_SECRET=" + System.getenv('TWITTER_CONSUMER_SECRET'),
+            "FACEBOOK_APP_ID=" + System.getenv('FACEBOOK_APP_ID'),
+            "FACEBOOK_APP_SECRET=" + System.getenv('FACEBOOK_APP_SECRET'),
+            "GOOGLE_APP_ID=" + System.getenv('GOOGLE_APP_ID'),
+            "GOOGLE_APP_SECRET=" + System.getenv('GOOGLE_APP_SECRET'),
+            "GITHUB_APP_ID=" + System.getenv('GOOGLE_APP_ID'),
+            "GITHUB_APP_SECRET=" + System.getenv('GOOGLE_APP_SECRET'),
+            "SUCCESS_CALLBACK=" + System.getenv('SUCCESS_CALLBACK'),
+            "KAFKA_URL=" + System.getenv('KAFKA_URL'),
+            "PLAYER_URL=" + System.getenv('PLAYER_URL')
+        ]
+
+if (null != System.getenv("SSL_CERT"))
+{
+    localEnvironment << "SSL_CERT=" + System.getenv("SSL_CERT")
+}
+
+def etcdEnvironment = ["LICENSE=accept", "ETCDCTL_ENDPOINT=http://etcd:4001"]
+
+task copyWAR(type: Copy) {
+    from '../auth-app/build/libs/auth-app-1.0.war'
+    into 'servers/gameon-auth/apps/'
+    rename("auth-app-1.0.war", "auth-app.war")
+}
+
+task build(dependsOn: ['copyWAR']){
+}
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+docker {
+      url = dockerHost
+    certPath = new File(dockerCertPath)
+}
+
+task buildDockerImage(type: DockerBuildImage, dependsOn: ['copyWAR']) {
+    inputDir = file('.')
+    tag = 'gameon-auth'
+    quiet = false
+}
+
+task stopCurrentContainer(type: DockerStopContainer) {
+    targetContainerId { "gameon-auth" }
+    timeout 0
+}
+
+task removeCurrentContainer(type: DockerRemoveContainer) {
+    targetContainerId { "gameon-auth" }
+}
+
+task createNewContainer(type: DockerCreateContainer) {
+    targetImageId { "gameon-auth" }
+    containerName = "gameon-auth"
+    portBindings = ['9082:9080','9443:9443']
+    env = localEnvironment
+}
+
+task startNewContainer(type: DockerStartContainer) {
+    dependsOn createNewContainer
+    targetContainerId { "gameon-auth" }
+}
+
+
+task createNewEtcdContainer(type: DockerCreateContainer) {
+    targetImageId { "gameon-player" }
+    containerName = "gameon-player"
+    portBindings = ['9082:9080','9443:9443']
+    env = etcdEnvironment
+    links = ['etcd:etcd']
+}
+
+task startNewEtcdContainer(type: DockerStartContainer) {
+    dependsOn createNewEtcdContainer
+    targetContainerId { "gameon-player" }
+}
