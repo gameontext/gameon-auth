@@ -36,7 +36,6 @@
 
   <jndiEntry jndiName="authCallbackURLSuccess" value="${env.SUCCESS_CALLBACK}"/>
   <jndiEntry jndiName="authCallbackURLFailure" value="${env.FAIL_CALLBACK}"/>
-  <jndiEntry jndiName="playerUrl" value="${env.PLAYER_URL}"/>
   <jndiEntry jndiName="systemId" value="${env.SYSTEM_ID}"/>
 
   <logging consoleLogLevel="INFO" traceSpecification="*=info:org.gameon.auth.*=all:net.wasdev.gameon.auth.*=all"/>
@@ -58,6 +57,8 @@
   <jndiEntry jndiName="gitHubOAuthSecret" value="${env.GITHUB_APP_SECRET}"/>
   
   <jndiEntry jndiName="kafkaUrl" value="${env.KAFKA_URL}"/>
+  
+  <jndiEntry jndiName="developmentMode" value="${env.MAP_PLAYER_MODE}"/>
 
   <applicationMonitor dropinsEnabled="false" updateTrigger="polled"/>
 

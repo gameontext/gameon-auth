@@ -37,7 +37,6 @@ def localEnvironment = ["LICENSE=accept",
             "GITHUB_APP_SECRET=" + System.getenv('GOOGLE_APP_SECRET'),
             "SUCCESS_CALLBACK=" + System.getenv('SUCCESS_CALLBACK'),
             "KAFKA_URL=" + System.getenv('KAFKA_URL'),
-            "PLAYER_URL=" + System.getenv('PLAYER_URL')
         ]
 
 if (null != System.getenv("SSL_CERT"))
@@ -84,7 +83,7 @@ task removeCurrentContainer(type: DockerRemoveContainer) {
 task createNewContainer(type: DockerCreateContainer) {
     targetImageId { "gameon-auth" }
     containerName = "gameon-auth"
-    portBindings = ['9082:9080','9443:9443']
+    portBindings = ['9089:9080','9449:9443']
     env = localEnvironment
 }
 
@@ -97,7 +96,7 @@ task startNewContainer(type: DockerStartContainer) {
 task createNewEtcdContainer(type: DockerCreateContainer) {
     targetImageId { "gameon-player" }
     containerName = "gameon-player"
-    portBindings = ['9082:9080','9443:9443']
+    portBindings = ['9089:9080','9449:9443']
     env = etcdEnvironment
     links = ['etcd:etcd']
 }

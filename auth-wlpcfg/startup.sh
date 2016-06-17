@@ -35,7 +35,6 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   keytool -delete -storepass testOnlyKeystore -alias endeca -keystore security/key.jks
   keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore cert.pkcs12 -srcstoretype PKCS12 -destkeystore security/key.jks -deststoretype JKS
 
-  export PLAYER_URL=$(etcdctl get /player/url)
   export TWITTER_CONSUMER_KEY=$(etcdctl get /player/twitter/id)
   export TWITTER_CONSUMER_SECRET=$(etcdctl get /player/twitter/secret)
   export FACEBOOK_APP_ID=$(etcdctl get /player/facebook/id)
