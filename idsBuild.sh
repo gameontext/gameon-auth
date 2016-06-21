@@ -28,7 +28,9 @@ echo $PWD
 echo $WORKSPACE/dockercfg
 cd ..
 
-echo Building and Starting Docker Image...
+export DOCKER_CERT_PATH=$WORKSPACE/dockercfg
+echo Building and Starting Docker Image using $DOCKER_CERT_PATH
+
 cd auth-wlpcfg
 
 ../gradlew buildDockerImage 
