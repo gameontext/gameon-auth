@@ -1,0 +1,12 @@
+/.settings/
+/.project
+.*.swp
+/servers/*/apps
+/servers/*/lib
+/servers/*/logs
+/servers/*/workarea
+/servers/.pid
+/servers/*/resources
+/build/
+/servers/.classCache
+/target
