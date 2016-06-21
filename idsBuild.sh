@@ -25,7 +25,7 @@ then
 fi
 
 echo Building and Starting Concierge Docker Image...
-cd player-wlpcfg
+cd auth-wlpcfg
 
 ../gradlew buildDockerImage 
 ../gradlew stopCurrentContainer 
