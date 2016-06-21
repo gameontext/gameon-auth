@@ -94,8 +94,8 @@ task startNewContainer(type: DockerStartContainer) {
 
 
 task createNewEtcdContainer(type: DockerCreateContainer) {
-    targetImageId { "gameon-player" }
-    containerName = "gameon-player"
+    targetImageId { "gameon-auth" }
+    containerName = "gameon-auth"
     portBindings = ['9089:9080','9449:9443']
     env = etcdEnvironment
     links = ['etcd:etcd']
@@ -103,5 +103,5 @@ task createNewEtcdContainer(type: DockerCreateContainer) {
 
 task startNewEtcdContainer(type: DockerStartContainer) {
     dependsOn createNewEtcdContainer
-    targetContainerId { "gameon-player" }
+    targetContainerId { "gameon-auth" }
 }

@@ -33,7 +33,7 @@ echo Building and Starting Docker Image using $DOCKER_CERT_PATH
 
 cd auth-wlpcfg
 
-../gradlew buildDockerImage 
+../gradlew --no-daemon buildDockerImage 
 rc=$?
 if [ $rc != 0 ]
 then
@@ -42,8 +42,8 @@ then
   exit 1
 fi
 
-../gradlew stopCurrentContainer 
-../gradlew removeCurrentContainer
-../gradlew startNewEtcdContainer
+../gradlew --no-daemon stopCurrentContainer 
+../gradlew --no-daemon removeCurrentContainer
+../gradlew --no-daemon startNewEtcdContainer
 
 rm -rf dockercfg
