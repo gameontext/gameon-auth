@@ -24,7 +24,7 @@ then
   exit 1
 fi
 
-echo Building and Starting Concierge Docker Image...
+echo Building and Starting Docker Image...
 cd auth-wlpcfg
 
 ../gradlew buildDockerImage 
