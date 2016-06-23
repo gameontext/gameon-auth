@@ -14,7 +14,7 @@ ENV SERVERDIRNAME auth
 COPY ./forwarder.conf /opt/forwarder.conf
 COPY ./startup.sh /opt/startup.sh
 
-ADD ./servers/gameon-player /opt/ibm/wlp/usr/servers/defaultServer/
+ADD ./servers/gameon-auth /opt/ibm/wlp/usr/servers/defaultServer/
 
 RUN /opt/ibm/wlp/bin/installUtility install  --acceptLicense /opt/ibm/wlp/usr/servers/defaultServer/server.xml
 

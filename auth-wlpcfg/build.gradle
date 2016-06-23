@@ -69,6 +69,7 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: ['copyWAR']) {
     inputDir = file('.')
     tag = 'gameon-auth'
     quiet = false
+    pull = true
 }
 
 task stopCurrentContainer(type: DockerStopContainer) {
