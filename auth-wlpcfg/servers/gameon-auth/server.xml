@@ -55,13 +55,15 @@
   <!-- Github Application Info...  -->
   <jndiEntry jndiName="gitHubOAuthKey" value="${env.GITHUB_APP_ID}"/>
   <jndiEntry jndiName="gitHubOAuthSecret" value="${env.GITHUB_APP_SECRET}"/>
-  
+
   <jndiEntry jndiName="kafkaUrl" value="${env.KAFKA_URL}"/>
-  
+
   <jndiEntry jndiName="developmentMode" value="${env.MAP_PLAYER_MODE}"/>
 
   <applicationMonitor dropinsEnabled="false" updateTrigger="polled"/>
 
+  <!-- This is required to prevent the web apps from being lazily loaded -->
+  <webContainer deferServletLoad="false"/>
   <!-- The JVM can get confused about available CPU in virtualized envs -->
   <executor coreThreads="10"  />
 
