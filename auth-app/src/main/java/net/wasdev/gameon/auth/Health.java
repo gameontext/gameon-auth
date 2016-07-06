@@ -16,6 +16,7 @@
 package net.wasdev.gameon.auth;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -56,26 +57,36 @@ public class Health extends HttpServlet {
     Kafka kafka;
     
     /**
+     * Lookup a string from jndi, and return null if it couldn't be found for any reason.
+     * @param name
+     * @return
+     */
+    private String lookup(String name){
+        try{
+            InitialContext i = new InitialContext();
+            return (String)i.lookup(name);
+        }catch (NamingException e) {
+            //ignore.. the string will be null, and the health check will fail appropriately.
+        }
+        return null;
+    }
+    
+    /**
      * @see HttpServlet#HttpServlet()
      */
     public Health() {
         super();
-        try {
             //grab the strings we didn't use @Resource for.
-            InitialContext i = new InitialContext();
-            facebookAppId = (String)i.lookup("facebookAppID");
-            facebookSecretKey = (String)i.lookup("facebookSecret");
-            gitHubKey = (String)i.lookup("gitHubOAuthKey");
-            gitHubSecret = (String)i.lookup("gitHubOAuthSecret");
-            googleKey = (String)i.lookup("googleOAuthConsumerKey");
-            googleSecret = (String)i.lookup("googleOAuthConsumerSecret");
-            twitterKey = (String)i.lookup("twitterOAuthConsumerKey");
-            twitterSecret = (String)i.lookup("twitterOAuthConsumerSecret");
+            facebookAppId = lookup("facebookAppID");
+            facebookSecretKey = lookup("facebookSecret");
+            gitHubKey = lookup("gitHubOAuthKey");
+            gitHubSecret = lookup("gitHubOAuthSecret");
+            googleKey = lookup("googleOAuthConsumerKey");
+            googleSecret = lookup("googleOAuthConsumerSecret");
+            twitterKey = lookup("twitterOAuthConsumerKey");
+            twitterSecret = lookup("twitterOAuthConsumerSecret");
             //this property is only set when running locally, else it will be null.
-            devMode = (String)i.lookup("developmentMode");
-        }catch (NamingException e) {
-            //ignore.. the strings will be null, and the health check will fail.
-        }
+            devMode = lookup("developmentMode");
     }
 
 	/**
@@ -101,6 +112,20 @@ public class Health extends HttpServlet {
               response.setStatus(200);
               response.getWriter().append("OK ").append(request.getContextPath());
           } else {
+              Log.log(Level.WARNING, this, "Auth Health is Bad. DevMode?{0}, kafka?{1}, cbFail{2}, cbOK{3}, fbApp{4}, fbSec{5}, ghKey{6}, ghSec{7}, gKey{8}, gSec{9}, tKey{10}, tSec{11}",
+                      "'"+String.valueOf(devMode)+"'",
+                      kafka!=null,
+                      callbackFailure!=null,
+                      callbackSuccess!=null,
+                      facebookAppId!=null,
+                      facebookSecretKey!=null,
+                      gitHubKey!=null,
+                      gitHubSecret!=null,
+                      googleKey!=null,
+                      googleSecret!=null,
+                      twitterKey!=null,
+                      twitterSecret!=null
+                      );
               response.setStatus(503);
               response.getWriter().append("Service Unavailable");
           }

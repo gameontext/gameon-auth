@@ -80,16 +80,5 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
     /opt/ibm/wlp/bin/server run defaultServer
   fi
 else
-  # LOCAL DEVELOPMENT!
-  # We do not want to ruin the cloudant admin party, but our code is written to expect
-  # that creds are required, so we should make sure the required user/password exist
-  export AUTH_HOST="http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@couchdb:5984"
-  curl --fail -v -X GET ${AUTH_HOST}/_config/admins/${COUCHDB_USER}
-  if [ $? -eq 22 ]; then
-      curl -X PUT ${COUCHDB_URL}/_config/admins/${COUCHDB_USER} -d \"${COUCHDB_PASSWORD}\"
-  fi
-
-  echo Have setup couchdb with user ${COUCHDB_USER}
-
   exec /opt/ibm/wlp/bin/server run defaultServer
 fi
