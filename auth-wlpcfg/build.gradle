@@ -37,6 +37,7 @@ def localEnvironment = ["LICENSE=accept",
             "GITHUB_APP_SECRET=" + System.getenv('GOOGLE_APP_SECRET'),
             "SUCCESS_CALLBACK=" + System.getenv('SUCCESS_CALLBACK'),
             "KAFKA_URL=" + System.getenv('KAFKA_URL'),
+            "MAP_PLAYER_MODE=" + System.getenv('MAP_PLAYER_MODE')
         ]
 
 if (null != System.getenv("SSL_CERT"))
