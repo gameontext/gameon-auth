@@ -67,6 +67,7 @@ public class Health extends HttpServlet {
             return (String)i.lookup(name);
         }catch (NamingException e) {
             //ignore.. the string will be null, and the health check will fail appropriately.
+            Log.log(Level.WARNING, this, "Auth healthcheck failed to lookup value for {0}",name);
         }
         return null;
     }
