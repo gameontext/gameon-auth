@@ -5,7 +5,7 @@
   <jaasLoginModule id="KafkaClient"
                className="com.ibm.messagehub.login.MessageHubLoginModule"
                controlFlag="REQUIRED" libraryRef="messageHubLoginLib">
-      <options serviceName="kafka" username="${env.KAFKA_USER}" password="${env.KAFKA_PASSWORD}"/>
+      <options serviceName="kafka" username="${env.MESSAGEHUB_USER}" password="${env.MESSAGEHUB_PASSWORD}"/>
   </jaasLoginModule>
   <jaasLoginContextEntry id="KafkaClient" name="KafkaClient" loginModuleRef="KafkaClient"  />
 </server>

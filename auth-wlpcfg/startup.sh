@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Configure amalgam8 for this container
+export A8_SERVICE=auth:v1
+export A8_ENDPOINT_PORT=9443
+export A8_ENDPOINT_TYPE=https
+
 if [ "$SSL_CERT" != "" ]; then
   echo Found an SSL cert to use.
   cd /opt/ibm/wlp/usr/servers/defaultServer/resources/
@@ -43,17 +48,17 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   export GOOGLE_APP_SECRET=$(etcdctl get /player/google/secret)
   export GITHUB_APP_ID=$(etcdctl get /player/github/id)
   export GITHUB_APP_SECRET=$(etcdctl get /player/github/secret)
-  export SUCCESS_CALLBACK=$(etcdctl get /player/callback)
-  export FAIL_CALLBACK=$(etcdctl get /player/failcallback)
+  export FRONT_END_SUCCESS_CALLBACK=$(etcdctl get /player/callback)
+  export FRONT_END_FAIL_CALLBACK=$(etcdctl get /player/failcallback)
   export LOGSTASH_ENDPOINT=$(etcdctl get /logstash/endpoint)
   export LOGMET_HOST=$(etcdctl get /logmet/host)
   export LOGMET_PORT=$(etcdctl get /logmet/port)
   export LOGMET_TENANT=$(etcdctl get /logmet/tenant)
   export LOGMET_PWD=$(etcdctl get /logmet/pwd)
   export SYSTEM_ID=$(etcdctl get /player/system_id)
-  export KAFKA_URL=$(etcdctl get /kafka/url)
-  export KAFKA_USER=$(etcdctl get /kafka/user)
-  export KAFKA_PASSWORD=$(etcdctl get /passwords/kafka)
+  export KAFKA_SERVICE_URL=$(etcdctl get /kafka/url)
+  export MESSAGEHUB_USER=$(etcdctl get /kafka/user)
+  export MESSAGEHUB_PASSWORD=$(etcdctl get /passwords/kafka)
 
   #to run with message hub, we need a jaas jar we can only obtain
   #from github, and have to use an extra config snippet to enable it.
@@ -61,7 +66,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   mkdir -p configDropins/overrides
   mv kafkaDropin.xml configDropins/overrides
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
-  
+
   # Softlayer needs a logstash endpoint so we set up the server
   # to run in the background and the primary task is running the
   # forwarder. In ICS, Liberty is the primary task so we need to
@@ -80,5 +85,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
     /opt/ibm/wlp/bin/server run defaultServer
   fi
 else
-  exec /opt/ibm/wlp/bin/server run defaultServer
+  echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
+  echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
+  exec a8sidecar --supervise /opt/ibm/wlp/bin/server run defaultServer
 fi
