@@ -1,8 +1,8 @@
 # Game On! Auth Service 
 
-See the player authentication part of the player  service [information page](https://gameontext.gitbooks.io/gameon-gitbook/content/microservices/player.html) in the Game On! Docs for more information on how to use this service.
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/bfd8ece69df0405eb5165f00fefc087e)](https://www.codacy.com/app/gameontext/gameon-auth?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gameontext/gameon-auth&amp;utm_campaign=Badge_Grade)
 
-When we swap to this auth service proper, it'll have it's own section over in the gitbook =)
+See the [application architecture description](https://gameontext.gitbooks.io/gameon-gitbook/content/microservices/) in the Game On! Docs for more information on how to use this service.
 
 ## Contributing
 
