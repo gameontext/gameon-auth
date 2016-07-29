@@ -1,5 +1,5 @@
 allprojects {
-    group = 'org.gameon'
+    group = 'org.gameontext'
     version = '1.0'
 
     repositories {
