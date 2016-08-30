@@ -1,4 +1,4 @@
--apply plugin: 'eclipse'
+apply plugin: 'eclipse'
 
 task copyWAR(type: Copy) {
    from '../auth-app/build/libs/auth-app-1.0.war'
