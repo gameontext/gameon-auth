@@ -1,12 +1,15 @@
 apply plugin: 'eclipse'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
 task copyWAR(type: Copy) {
    from '../auth-app/build/libs/auth-app-1.0.war'
    into 'servers/gameon-auth/apps/'
    rename("auth-app-1.0.war", "auth-app.war")
-}
-
-task build(dependsOn: ['copyWAR']){
 }
 
 task build(dependsOn: ['copyWAR']){
