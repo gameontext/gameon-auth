@@ -45,7 +45,7 @@ else
     ../docker stop -t 0 gameon-auth || true
     ../docker rm gameon-auth || true
     echo Starting new container.
-    ../docker run -d -p 9089:9080 -p 9449:9443 --link etcd -e LICENSE=accept -e ETCDCTL_ENDPOINT=http://etcd:4001 --name=gameon-auth gameon-auth
+    ../docker run -d -p 9089:9080 -p 9449:9443 --restart=always --link etcd -e LICENSE=accept -e ETCDCTL_ENDPOINT=http://etcd:4001 --name=gameon-auth gameon-auth
     if [ $? != 0 ]
     then
       echo "Docker run failed.. it's too late.. the damage is done already."
