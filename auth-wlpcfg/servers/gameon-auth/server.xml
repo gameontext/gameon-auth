@@ -38,7 +38,7 @@
   <jndiEntry jndiName="authCallbackURLFailure" value="${env.FRONT_END_FAIL_CALLBACK}"/>
   <jndiEntry jndiName="systemId" value="${env.SYSTEM_ID}"/>
 
-  <logging consoleLogLevel="INFO" traceSpecification="*=info:org.gameon.auth.*=all:net.wasdev.gameon.auth.*=all"/>
+  <logging consoleLogLevel="INFO" traceSpecification="*=info:org.gameontext.*=all"/>
 
   <!-- Twitter Application Info... -->
   <jndiEntry jndiName="twitterOAuthConsumerKey" value="${env.TWITTER_CONSUMER_KEY}"/>
@@ -60,12 +60,12 @@
 
   <jndiEntry jndiName="developmentMode" value="${env.GAMEON_MODE}"/>
 
-  <applicationMonitor dropinsEnabled="false" updateTrigger="polled"/>
+  <applicationMonitor dropinsEnabled="false" updateTrigger="mbean"/>
 
   <!-- This is required to prevent the web apps from being lazily loaded -->
   <webContainer deferServletLoad="false"/>
   <!-- The JVM can get confused about available CPU in virtualized envs -->
-  <executor coreThreads="10"  />
+  <executor coreThreads="5"  />
 
   <!-- new API as a separate war -->
   <webApplication contextRoot="/auth" id="auth-app" location="auth-app.war" name="auth-app">
