@@ -151,7 +151,7 @@ public class GitHubCallback extends JwtAuth {
                             for ( JsonNode email : en) {
                               Boolean primary = Boolean.valueOf(email.get("primary").booleanValue());
                               if(primary){
-                                claims.put("email", en.get("email").textValue());
+                                claims.put("email", email.get("email").textValue());
                               }
                             }
                           }
