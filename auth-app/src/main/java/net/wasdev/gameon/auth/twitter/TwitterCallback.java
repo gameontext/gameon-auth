@@ -77,8 +77,12 @@ public class TwitterCallback extends JwtAuth {
         Map<String, String> results = new HashMap<String, String>();
 
         ConfigurationBuilder c = new ConfigurationBuilder();
-        c.setOAuthConsumerKey(key).setOAuthConsumerSecret(secret).setOAuthAccessToken(token)
-        .setOAuthAccessTokenSecret(tokensecret);
+        c.setOAuthConsumerKey(key)
+         .setOAuthConsumerSecret(secret)
+         .setOAuthAccessToken(token)
+         .setOAuthAccessTokenSecret(tokensecret)
+         .setIncludeEmailEnabled(true)
+         .setJSONStoreEnabled(true);
 
         Twitter twitter = new TwitterFactory(c.build()).getInstance();
 
@@ -86,19 +90,16 @@ public class TwitterCallback extends JwtAuth {
             // ask twitter to verify the token & tokensecret from the auth
             // string
             // if invalid, it'll throw a TwitterException
-            twitter.verifyCredentials();
+            User verified = twitter.verifyCredentials();
 
             // if it's valid, lets grab a little more info about the user.
-            long id = twitter.getId();
-            ResponseList<User> users = twitter.lookupUsers(id);
-            User u = users.get(0);
-            String name = u.getName();
-            String screenname = u.getScreenName();
+            String name = verified.getName();
+            String email = verified.getEmail();
 
             results.put("valid", "true");
-            results.put("id", "twitter:" + id);
+            results.put("id", "twitter:" + twitter.getId());
             results.put("name", name);
-            results.put("screenname", screenname);
+            results.put("email", email);
 
         } catch (TwitterException e) {
             results.put("valid", "false");
@@ -131,24 +132,24 @@ public class TwitterCallback extends JwtAuth {
                 // clean up the session as we go (can leave twitter there if we need
                 // it again).
                 request.getSession().removeAttribute("requestToken");
-    
+
                 // swap the verifier token for an access token
                 AccessToken token = twitter.getOAuthAccessToken(requestToken, verifier);
-    
+
                 Map<String, String> claims = introspectAuth(token.getToken(), token.getTokenSecret());
-    
+
                 // if auth key was no longer valid, we won't build a jwt. redirect
                 // to failure url.
                 if (!"true".equals(claims.get("valid"))) {
                     response.sendRedirect(callbackFailure);
                 } else {
                     String newJwt = createJwt(claims);
-    
+
                     // debug.
                     System.out.println("New User Authed: " + claims.get("id"));
                     response.sendRedirect(callbackSuccess + "/" + newJwt);
                 }
-    
+
             } catch (TwitterException e) {
                 throw new ServletException(e);
             }

@@ -34,6 +34,7 @@
   <jndiEntry jndiName="jwtKeyStorePassword" value="testOnlyKeystore"/>
   <jndiEntry jndiName="jwtKeyStoreAlias" value="default"/>
 
+  <jndiEntry jndiName="authURL" value="${env.FRONT_END_AUTH_URL}"/>
   <jndiEntry jndiName="authCallbackURLSuccess" value="${env.FRONT_END_SUCCESS_CALLBACK}"/>
   <jndiEntry jndiName="authCallbackURLFailure" value="${env.FRONT_END_FAIL_CALLBACK}"/>
   <jndiEntry jndiName="systemId" value="${env.SYSTEM_ID}"/>

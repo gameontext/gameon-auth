@@ -107,7 +107,7 @@ public class GitHubCallback extends JwtAuth {
 
                 //response comes back as query param encoded data.. we'll grab the token from that...
                 resp = r.parseAsString();
-                
+
                 //http client way to parse query params..
                 List<NameValuePair> params = URLEncodedUtils.parse(resp, Charset.forName("UTF-8"));
                 String token = null;
@@ -127,7 +127,6 @@ public class GitHubCallback extends JwtAuth {
                     if(u.isSuccessStatusCode()){
                         //user profile comes back as json..
                         resp = u.parseAsString();
-                        System.out.println(resp);
 
                         //use om to parse the json, so we can grab the id & name from it.
                         ObjectMapper om = new ObjectMapper();
@@ -138,6 +137,25 @@ public class GitHubCallback extends JwtAuth {
                         //github id is a number, but we'll read it as text incase it changes in future..
                         claims.put("id", "github:" + jn.get("id").asText());
                         claims.put("name", jn.get("login").textValue());
+
+                        GenericUrl emailQuery = new GenericUrl("https://api.github.com/user/emails");
+                        emailQuery.put("access_token", token);
+                        HttpRequest emailRequest = requestFactory.buildGetRequest(emailQuery);
+                        HttpResponse er = emailRequest.execute();
+
+                        claims.put("email","unknown");
+                        if(er.isSuccessStatusCode()){
+                          resp = er.parseAsString();
+                          JsonNode en = om.readValue(resp,JsonNode.class);
+                          if(en.isArray()){
+                            for ( JsonNode email : en) {
+                              Boolean primary = Boolean.valueOf(email.get("primary").booleanValue());
+                              if(primary){
+                                claims.put("email", en.get("email").textValue());
+                              }
+                            }
+                          }
+                        }
 
                         String jwt = createJwt(claims);
 

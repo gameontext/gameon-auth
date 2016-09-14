@@ -65,6 +65,7 @@ public class DummyAuth extends JwtAuth {
 
         claims.put("id", "dummy." + s);
         claims.put("name", s);
+        claims.put("email", s+"@DUMMYEMAIL.DUMMY");
 
         String newJwt = createJwt(claims);
 

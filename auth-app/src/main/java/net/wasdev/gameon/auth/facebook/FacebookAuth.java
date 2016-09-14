@@ -36,6 +36,8 @@ public class FacebookAuth extends HttpServlet {
 
     @Resource(lookup = "facebookAppID")
     String facebookAppId;
+    @Resource(lookup = "authURL")
+    String authURL;
 
     public FacebookAuth() {
     }
@@ -48,12 +50,10 @@ public class FacebookAuth extends HttpServlet {
 
         // tell facebook to send the user to this address once they have
         // authenticated.
-        StringBuffer callbackURL = request.getRequestURL();
-        int index = callbackURL.lastIndexOf("/");
-        callbackURL.replace(index, callbackURL.length(), "").append("/FacebookCallback");
+        String callbackURL = authURL + "/FacebookCallback";
 
         FacebookClient client = new DefaultFacebookClient(Version.VERSION_2_5);
-        String loginUrl = client.getLoginDialogUrl(facebookAppId, callbackURL.toString(), scopeBuilder);
+        String loginUrl = client.getLoginDialogUrl(facebookAppId, callbackURL, scopeBuilder);
 
         // redirect the user to facebook to be authenticated.
         response.sendRedirect(loginUrl);
