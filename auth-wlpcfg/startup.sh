@@ -50,6 +50,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   export GITHUB_APP_SECRET=$(etcdctl get /auth/github/secret)
   export FRONT_END_SUCCESS_CALLBACK=$(etcdctl get /auth/callback)
   export FRONT_END_FAIL_CALLBACK=$(etcdctl get /auth/failcallback)
+  export FRONT_END_AUTH_URL=$(etcdctl get /auth/url)
   export LOGSTASH_ENDPOINT=$(etcdctl get /logstash/endpoint)
   export LOGMET_HOST=$(etcdctl get /logmet/host)
   export LOGMET_PORT=$(etcdctl get /logmet/port)

@@ -95,12 +95,12 @@ public class GoogleCallback extends JwtAuth {
             JsonNode user = objectMapper.readTree(jsonIdentity);
             String id = user.get("id").asText();
             String name = user.get("name").asText();
-            String screenname = user.get("email").asText();
+            String email = user.get("email").asText();
 
             results.put("valid", "true");
             results.put("id", "google:" + id);
             results.put("name", name);
-            results.put("screenname", screenname);
+            results.put("email", email);
 
         } catch (Exception e) {
             results.put("valid", "false");

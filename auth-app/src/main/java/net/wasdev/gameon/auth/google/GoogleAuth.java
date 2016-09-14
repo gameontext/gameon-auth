@@ -39,6 +39,8 @@ public class GoogleAuth extends HttpServlet {
     String key;
     @Resource(lookup = "googleOAuthConsumerSecret")
     String secret;
+    @Resource(lookup = "authURL")
+    String authURL;
 
     public GoogleAuth() {
     }
@@ -60,12 +62,10 @@ public class GoogleAuth extends HttpServlet {
         try {
             // google will tell the users browser to go to this address once
             // they are done authing.
-            StringBuffer callbackURL = request.getRequestURL();
-            int index = callbackURL.lastIndexOf("/");
-            callbackURL.replace(index, callbackURL.length(), "").append("/GoogleCallback");
+            String callbackURL = authURL + "/GoogleCallback";
             request.getSession().setAttribute("google", flow);
 
-            String authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(callbackURL.toString()).build();
+            String authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(callbackURL).build();
             // send the user to google to be authenticated.
             response.sendRedirect(authorizationUrl);
 

@@ -3,6 +3,11 @@ apply plugin: 'eclipse-wtp'
 
 sourceCompatibility = 1.8
 
+repositories {
+	maven { url "http://twitter4j.org/maven2" }
+	mavenCentral()
+}
+
 configurations {
     jmockit
     testCompile.extendsFrom jmockit
@@ -18,10 +23,10 @@ dependencies {
     providedCompile 'javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.0'
     providedCompile 'javax.enterprise:cdi-api:1.2'
 
-	//pick our own level of slf4j, to avoid conflicts from all the libs.. 
+	//pick our own level of slf4j, to avoid conflicts from all the libs..
     compile 'org.slf4j:slf4j-jdk14:1.7.13'
     compile 'org.slf4j:jcl-over-slf4j:1.7.13'
-    
+
     compile ('org.apache.httpcomponents:httpclient:4.5.2') {
         exclude group: 'org.slf4j'
     }
@@ -35,19 +40,19 @@ dependencies {
     compile ('com.google.api-client:google-api-client:1.19.1') {
         exclude group: 'org.slf4j'
     }
-    
-    compile ('org.twitter4j:twitter4j-core:4.0.4') {
+
+    compile ('org.twitter4j:twitter4j-core:4.0.5-SNAPSHOT') {
         exclude group: 'org.slf4j'
     }
     compile ('com.restfb:restfb:1.15.0') {
         exclude group: 'org.slf4j'
     }
-    
+
     // kafka client =)
     compile ('org.apache.kafka:kafka-clients:0.9.0.1') {
         exclude group: 'org.slf4j'
     }
-    
+
     jmockit 'org.jmockit:jmockit:1.22'
     testCompile 'junit:junit:4.12'
     testCompile 'org.glassfish:javax.json:1.0.4'

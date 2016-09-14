@@ -38,6 +38,8 @@ public class TwitterAuth extends HttpServlet {
     String key;
     @Resource(lookup = "twitterOAuthConsumerSecret")
     String secret;
+    @Resource(lookup = "authURL")
+    String authURL;
 
     public TwitterAuth() {
     }
@@ -55,13 +57,11 @@ public class TwitterAuth extends HttpServlet {
         try {
             // twitter will tell the users browser to go to this address once
             // they are done authing.
-            StringBuffer callbackURL = request.getRequestURL();
-            int index = callbackURL.lastIndexOf("/");
-            callbackURL.replace(index, callbackURL.length(), "").append("/TwitterCallback");
+            String callbackURL = authURL + "/TwitterCallback";
 
             // to initiate an auth request, twitter needs us to have a request
             // token.
-            RequestToken requestToken = twitter.getOAuthRequestToken(callbackURL.toString());
+            RequestToken requestToken = twitter.getOAuthRequestToken(callbackURL);
 
             // stash the request token in the session.
             request.getSession().setAttribute("requestToken", requestToken);
