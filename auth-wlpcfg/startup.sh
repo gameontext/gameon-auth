@@ -88,5 +88,5 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
 else
   echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
   echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
-  exec a8sidecar --supervise /opt/ibm/wlp/bin/server run defaultServer
+  exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
 fi
