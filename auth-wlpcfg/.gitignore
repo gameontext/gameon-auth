@@ -7,7 +7,8 @@
 /servers/*/workarea
 /servers/.pid
 /servers/*/resources
-/servers/*/configDropins
+/servers/*/configDropins/defaults
+/servers/*/configDropins/overrides
 /build/
 /servers/.classCache
 /target

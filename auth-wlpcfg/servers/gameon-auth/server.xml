@@ -39,7 +39,7 @@
   <jndiEntry jndiName="authCallbackURLFailure" value="${env.FRONT_END_FAIL_CALLBACK}"/>
   <jndiEntry jndiName="systemId" value="${env.SYSTEM_ID}"/>
 
-  <logging consoleLogLevel="INFO" traceSpecification="*=info:org.gameontext.*=all"/>
+  <logging traceSpecification="*=info:org.gameontext.*=all"/>
 
   <!-- Twitter Application Info... -->
   <jndiEntry jndiName="twitterOAuthConsumerKey" value="${env.TWITTER_CONSUMER_KEY}"/>

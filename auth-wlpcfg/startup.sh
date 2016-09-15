@@ -5,9 +5,23 @@ export A8_SERVICE=auth:v1
 export A8_ENDPOINT_PORT=9443
 export A8_ENDPOINT_TYPE=https
 
+if [ "$SERVERDIRNAME" == "" ]; then
+  SERVERDIRNAME=defaultServer
+else
+  # Share the configuration directory via symlink
+  ln -s /opt/ibm/wlp/usr/servers/defaultServer /opt/ibm/wlp/usr/servers/$SERVERDIRNAME
+
+  # move the convenience output dir link to the new output location
+  rm /output
+  ln -s $WLP_OUTPUT_DIR/$SERVERDIRNAME /output
+fi
+
+SERVER_PATH=/opt/ibm/wlp/usr/servers/$SERVERDIRNAME
+mkdir -p ${SERVER_PATH}/configDropins/overrides
+
 if [ "$SSL_CERT" != "" ]; then
   echo Found an SSL cert to use.
-  cd /opt/ibm/wlp/usr/servers/defaultServer/resources/
+  cd ${SERVER_PATH}/resources/
   echo -e $SSL_CERT > cert.pem
   openssl pkcs12 -passin pass:keystore -passout pass:keystore -export -out cert.pkcs12 -in cert.pem
   keytool -import -v -trustcacerts -alias default -file cert.pem -storepass truststore -keypass keystore -noprompt -keystore security/truststore.jks
@@ -32,13 +46,14 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   done
   echo "etcdctl returned sucessfully, continuing"
 
-  cd /opt/ibm/wlp/usr/servers/defaultServer/resources/
+  cd ${SERVER_PATH}/resources/
   etcdctl get /proxy/third-party-ssl-cert > cert.pem
   openssl pkcs12 -passin pass:keystore -passout pass:keystore -export -out cert.pkcs12 -in cert.pem
   keytool -import -v -trustcacerts -alias default -file cert.pem -storepass truststore -keypass keystore -noprompt -keystore security/truststore.jks
   keytool -genkey -storepass testOnlyKeystore -keypass wefwef -keyalg RSA -alias endeca -keystore security/key.jks -dname CN=rsssl,OU=unknown,O=unknown,L=unknown,ST=unknown,C=CA
   keytool -delete -storepass testOnlyKeystore -alias endeca -keystore security/key.jks
   keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore cert.pkcs12 -srcstoretype PKCS12 -destkeystore security/key.jks -deststoretype JKS
+  cd ${SERVER_PATH}
 
   export TWITTER_CONSUMER_KEY=$(etcdctl get /auth/twitter/id)
   export TWITTER_CONSUMER_SECRET=$(etcdctl get /auth/twitter/secret)
@@ -63,9 +78,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
 
   #to run with message hub, we need a jaas jar we can only obtain
   #from github, and have to use an extra config snippet to enable it.
-  cd /opt/ibm/wlp/usr/servers/defaultServer
-  mkdir -p configDropins/overrides
-  mv kafkaDropin.xml configDropins/overrides
+  cp ${SERVER_PATH}/configDropins/messageHub.xml ${SERVER_PATH}/configDropins/overrides
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 
   # Softlayer needs a logstash endpoint so we set up the server
@@ -88,5 +101,8 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
 else
   echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
   echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
+
+  cp ${SERVER_PATH}/configDropins/localDev.xml ${SERVER_PATH}/configDropins/overrides
+
   exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
 fi
