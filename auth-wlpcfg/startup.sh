@@ -71,23 +71,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   cp ${SERVER_PATH}/configDropins/messageHub.xml ${SERVER_PATH}/configDropins/overrides
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 
-  # Softlayer needs a logstash endpoint so we set up the server
-  # to run in the background and the primary task is running the
-  # forwarder. In ICS, Liberty is the primary task so we need to
-  # run it in the foreground
-  if [ "$LOGSTASH_ENDPOINT" != "" ]; then
-    /opt/ibm/wlp/bin/server start defaultServer
-    echo Starting the logstash forwarder...
-    sed -i s/PLACEHOLDER_LOGHOST/$(etcdctl get /logstash/endpoint)/g /opt/forwarder.conf
-    cd /opt
-    chmod +x ./forwarder
-    etcdctl get /logstash/cert > logstash-forwarder.crt
-    etcdctl get /logstash/key > logstash-forwarder.key
-    sleep 0.5
-    ./forwarder --config ./forwarder.conf
-  else
-    /opt/ibm/wlp/bin/server run defaultServer
-  fi
+  exec /opt/ibm/wlp/bin/server run $SERVERDIRNAME
 else
   echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
   echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
