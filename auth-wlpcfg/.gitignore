@@ -12,3 +12,4 @@
 /build/
 /servers/.classCache
 /target
+/servers/gameon-auth/defaultServer
