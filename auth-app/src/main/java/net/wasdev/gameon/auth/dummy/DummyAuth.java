@@ -18,6 +18,7 @@ package net.wasdev.gameon.auth.dummy;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.wasdev.gameon.auth.JwtAuth;
+import net.wasdev.gameon.auth.Log;
 
 /**
  * A backend-less auth impl for testing.
@@ -38,6 +40,7 @@ import net.wasdev.gameon.auth.JwtAuth;
 public class DummyAuth extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
+    /** Something like https://127.0.0.1/#/login/callback provided by the environment */
     @Resource(lookup = "authCallbackURLSuccess")
     String callbackSuccess;
 
@@ -50,6 +53,9 @@ public class DummyAuth extends JwtAuth {
         if (callbackSuccess == null) {
             System.err.println("Error finding auth callback url; please set this in your environment variables!");
         }
+        
+        // Convert https://127.0.0.1/#/login/callback to /#/login/callback
+        callbackSuccess = callbackSuccess.substring(callbackSuccess.indexOf('#'));
     }
 
     @Override
@@ -68,12 +74,17 @@ public class DummyAuth extends JwtAuth {
         claims.put("email", s+"@DUMMYEMAIL.DUMMY");
 
         String newJwt = createJwt(claims);
+        String callbackHost = request.getParameter("callbackHost");
 
         // debug.
-        System.out.println("New User Authed: " + claims.get("id"));
-
-        response.sendRedirect(callbackSuccess + "/" + newJwt);
-
+        Log.log(Level.FINEST, this, "New User Authed: {0}", claims.get("id"));
+        Log.log(Level.FINEST, this, "Remote callbackHost: {0}", callbackHost);
+        Log.log(Level.FINEST, this, "Remote callbackSuccess: {0}", callbackSuccess);
+        Log.log(Level.FINEST, this, "Result url: {0}", callbackHost + '/' + callbackSuccess);
+        
+        // Append /#/login/callback to the end of the original referer
+        response.sendRedirect(callbackHost + '/' + callbackSuccess + '/' + newJwt);
+        // 
     }
 
 }
