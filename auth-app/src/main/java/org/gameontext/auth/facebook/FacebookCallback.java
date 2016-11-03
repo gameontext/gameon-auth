@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.facebook;
+package org.gameontext.auth.facebook;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +26,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.gameontext.auth.JwtAuth;
+
 import com.restfb.DefaultFacebookClient;
 import com.restfb.DefaultWebRequestor;
 import com.restfb.FacebookClient;
@@ -34,8 +36,6 @@ import com.restfb.Version;
 import com.restfb.WebRequestor;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.User;
-
-import net.wasdev.gameon.auth.JwtAuth;
 
 @WebServlet("/FacebookCallback")
 public class FacebookCallback extends JwtAuth {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth;
+package org.gameontext.auth;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  */
 public class Log {
-    private final static Logger log = Logger.getLogger("net.wasdev.gameon.player");
+    private final static Logger log = Logger.getLogger("org.gameontext.auth");
     private static final String endpoint_log_format = "%-10s: %s";
 
     public static void log(Level level, Object source, String message, Object... args) {

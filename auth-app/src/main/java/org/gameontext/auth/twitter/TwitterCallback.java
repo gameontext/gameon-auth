@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.twitter;
+package org.gameontext.auth.twitter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +26,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.wasdev.gameon.auth.JwtAuth;
+import org.gameontext.auth.JwtAuth;
+
 import twitter4j.ResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
