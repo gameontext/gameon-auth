@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.twitter;
+package org.gameontext.auth.twitter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,8 +26,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.wasdev.gameon.auth.JwtAuth;
-import twitter4j.ResponseList;
+import org.gameontext.auth.JwtAuth;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -44,17 +44,13 @@ public class TwitterCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "twitterOAuthConsumerKey")
-    String key;
+    private String key;
     @Resource(lookup = "twitterOAuthConsumerSecret")
-    String secret;
+    private String secret;
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
-
-    public TwitterCallback() {
-        super();
-    }
+    private String callbackFailure;
 
     @PostConstruct
     private void verifyInit() {

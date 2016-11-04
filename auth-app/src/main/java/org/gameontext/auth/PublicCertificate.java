@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth;
+package org.gameontext.auth;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,7 +39,7 @@ import javax.xml.bind.DatatypeConverter;
 public class PublicCertificate extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    java.security.cert.Certificate publicCert = null;
+    private java.security.cert.Certificate publicCert = null;
 
     /**
      * @see HttpServlet#HttpServlet()

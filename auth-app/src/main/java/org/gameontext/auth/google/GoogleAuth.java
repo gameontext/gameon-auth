@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.google;
+package org.gameontext.auth.google;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,14 +36,11 @@ public class GoogleAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "googleOAuthConsumerKey")
-    String key;
+    private String key;
     @Resource(lookup = "googleOAuthConsumerSecret")
-    String secret;
+    private String secret;
     @Resource(lookup = "authURL")
-    String authURL;
-
-    public GoogleAuth() {
-    }
+    private String authURL;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

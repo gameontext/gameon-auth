@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.github;
+package org.gameontext.auth.facebook;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -25,41 +24,37 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/GitHubAuth")
-public class GitHubAuth extends HttpServlet {
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.Version;
+import com.restfb.scope.ExtendedPermissions;
+import com.restfb.scope.ScopeBuilder;
+
+@WebServlet("/FacebookAuth")
+public class FacebookAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    @Resource(lookup = "gitHubOAuthKey")
-    String key;
+    @Resource(lookup = "facebookAppID")
+    private String facebookAppId;
+    
     @Resource(lookup = "authURL")
-    String authURL;
-
-    private final static String url = "https://github.com/login/oauth/authorize";
-
-    public GitHubAuth() {
-    }
+    private String authURL;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
-            UUID stateUUID = UUID.randomUUID();
-            String state=stateUUID.toString();
-            request.getSession().setAttribute("github", state);
+        ScopeBuilder scopeBuilder = new ScopeBuilder();
+        scopeBuilder.addPermission(ExtendedPermissions.EMAIL);
 
-            // google will tell the users browser to go to this address once
-            // they are done authing.
-            String callbackURL = authURL + "/GitHubCallback";
+        // tell facebook to send the user to this address once they have
+        // authenticated.
+        String callbackURL = authURL + "/FacebookCallback";
 
-            String newUrl = url + "?client_id="+key+"&redirect_url="+callbackURL+"&scope=user:email&state="+state;
+        FacebookClient client = new DefaultFacebookClient(Version.VERSION_2_5);
+        String loginUrl = client.getLoginDialogUrl(facebookAppId, callbackURL, scopeBuilder);
 
-            // send the user to google to be authenticated.
-            response.sendRedirect(newUrl);
-
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
-
+        // redirect the user to facebook to be authenticated.
+        response.sendRedirect(loginUrl);
     }
 
 }

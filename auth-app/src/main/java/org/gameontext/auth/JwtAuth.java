@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth;
+package org.gameontext.auth;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,10 +49,6 @@ public abstract class JwtAuth extends HttpServlet {
     protected String keyStoreAlias;
 
     protected static Key signingKey = null;
-
-    public JwtAuth() {
-        super();
-    }
 
     /**
      * Obtain the key we'll use to sign the jwts we issue.

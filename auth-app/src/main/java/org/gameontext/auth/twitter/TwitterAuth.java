@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.twitter;
+package org.gameontext.auth.twitter;
 
 import java.io.IOException;
 
@@ -35,14 +35,11 @@ public class TwitterAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "twitterOAuthConsumerKey")
-    String key;
+    private String key;
     @Resource(lookup = "twitterOAuthConsumerSecret")
-    String secret;
+    private String secret;
     @Resource(lookup = "authURL")
-    String authURL;
-
-    public TwitterAuth() {
-    }
+    private String authURL;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.google;
+package org.gameontext.auth.google;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +26,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.gameontext.auth.JwtAuth;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.auth.oauth2.Credential;
@@ -36,8 +38,6 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.javanet.NetHttpTransport;
 
-import net.wasdev.gameon.auth.JwtAuth;
-
 /**
  * Servlet implementation class googleCallback
  */
@@ -45,20 +45,12 @@ import net.wasdev.gameon.auth.JwtAuth;
 public class GoogleCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
-    @Resource(lookup = "googleOAuthConsumerKey")
-    String key;
-    @Resource(lookup = "googleOAuthConsumerSecret")
-    String secret;
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
+    private String callbackFailure;
 
     private GoogleAuthorizationCodeFlow flow = null;
-
-    public GoogleCallback() {
-        super();
-    }
 
     @PostConstruct
     private void verifyInit() {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package net.wasdev.gameon.auth.dummy;
+package org.gameontext.auth.dummy;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,8 +27,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.wasdev.gameon.auth.JwtAuth;
-import net.wasdev.gameon.auth.Log;
+import org.gameontext.auth.JwtAuth;
+import org.gameontext.auth.Log;
 
 /**
  * A backend-less auth impl for testing.
@@ -42,26 +42,29 @@ public class DummyAuth extends JwtAuth {
 
     /** Something like https://127.0.0.1/#/login/callback provided by the environment */
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
+    
+    @Resource(lookup = "developmentMode")
+    private String developmentMode;
 
-    public DummyAuth() {
-        super();
-    }
+    private String callbackFragment;
 
     @PostConstruct
     private void verifyInit() {
-        if (callbackSuccess == null) {
-            System.err.println("Error finding auth callback url; please set this in your environment variables!");
+        if ( developmentMode == null ) {
+            developmentMode = "production";
         }
         
         // Convert https://127.0.0.1/#/login/callback to /#/login/callback
-        callbackSuccess = callbackSuccess.substring(callbackSuccess.indexOf('#'));
+        callbackFragment = callbackSuccess.substring(callbackSuccess.indexOf('#'));
+        Log.log(Level.FINEST, this, "Remote callbackFragment: {0}", callbackFragment);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String s = request.getParameter("dummyUserName");
+        String callbackURL;
 
         if (s == null) {
             s = "AnonymousUser";
@@ -72,19 +75,23 @@ public class DummyAuth extends JwtAuth {
         claims.put("id", "dummy." + s);
         claims.put("name", s);
         claims.put("email", s+"@DUMMYEMAIL.DUMMY");
+        Log.log(Level.FINEST, this, "New User Authed: {0}", claims.get("id"));
 
         String newJwt = createJwt(claims);
-        String callbackHost = request.getParameter("callbackHost");
-
-        // debug.
-        Log.log(Level.FINEST, this, "New User Authed: {0}", claims.get("id"));
-        Log.log(Level.FINEST, this, "Remote callbackHost: {0}", callbackHost);
-        Log.log(Level.FINEST, this, "Remote callbackSuccess: {0}", callbackSuccess);
-        Log.log(Level.FINEST, this, "Result url: {0}", callbackHost + '/' + callbackSuccess);
         
-        // Append /#/login/callback to the end of the original referer
-        response.sendRedirect(callbackHost + '/' + callbackSuccess + '/' + newJwt);
-        // 
+        if ( "development".equals(developmentMode) ) {
+            String callbackHost = request.getParameter("callbackHost");
+            callbackURL = callbackHost + '/' + callbackFragment + '/' + newJwt;
+
+            Log.log(Level.FINEST, this, "Remote callbackHost: {0}", callbackHost);
+            Log.log(Level.FINEST, this, "Result url: {0}", callbackURL);
+        } else {
+            callbackURL = callbackSuccess + '/' + newJwt;
+            Log.log(Level.FINEST, this, "Remote callbackSuccess: {0}", callbackSuccess);
+            Log.log(Level.FINEST, this, "Result url: {0}", callbackSuccess);
+        }
+        
+        response.sendRedirect(callbackURL);
     }
 
 }
