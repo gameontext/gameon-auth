@@ -59,8 +59,6 @@
 
   <jndiEntry jndiName="kafkaUrl" value="${env.KAFKA_SERVICE_URL}"/>
 
-  <jndiEntry jndiName="developmentMode" value="${env.GAMEON_MODE}"/>
-
   <applicationMonitor dropinsEnabled="false" updateTrigger="mbean"/>
 
   <!-- This is required to prevent the web apps from being lazily loaded -->
@@ -70,8 +68,11 @@
 
   <!-- new API as a separate war -->
   <webApplication contextRoot="/auth" id="auth-app" location="auth-app.war" name="auth-app" />
-  
-  <include location="${env.GAMEON_MODE}-local.xml" optional="true" />
-  <include location="${env.GAMEON_MODE}-logCollector.xml" optional="true" />
+
+  <jndiEntry jndiName="developmentMode" value="${env.GAMEON_MODE}"/>
+  <jndiEntry jndiName="targetPlatform" value="${env.TARGET_PLATFORM}"/>
+  <include location="${env.TARGET_PLATFORM}-config.xml" optional="true" />
+  <include location="${env.TARGET_PLATFORM}-logCollector.xml" optional="true" />
+  <include location="${env.TARGET_PLATFORM}-messageHub.xml" optional="true" />
 
 </server>
