@@ -35,14 +35,11 @@ public class TwitterAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "twitterOAuthConsumerKey")
-    String key;
+    private String key;
     @Resource(lookup = "twitterOAuthConsumerSecret")
-    String secret;
+    private String secret;
     @Resource(lookup = "authURL")
-    String authURL;
-
-    public TwitterAuth() {
-    }
+    private String authURL;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -30,14 +30,11 @@ public class GitHubAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "gitHubOAuthKey")
-    String key;
+    private String key;
     @Resource(lookup = "authURL")
-    String authURL;
+    private String authURL;
 
     private final static String url = "https://github.com/login/oauth/authorize";
-
-    public GitHubAuth() {
-    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

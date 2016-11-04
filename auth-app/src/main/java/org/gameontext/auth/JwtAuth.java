@@ -50,10 +50,6 @@ public abstract class JwtAuth extends HttpServlet {
 
     protected static Key signingKey = null;
 
-    public JwtAuth() {
-        super();
-    }
-
     /**
      * Obtain the key we'll use to sign the jwts we issue.
      *

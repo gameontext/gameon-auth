@@ -45,20 +45,12 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 public class GoogleCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
-    @Resource(lookup = "googleOAuthConsumerKey")
-    String key;
-    @Resource(lookup = "googleOAuthConsumerSecret")
-    String secret;
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
+    private String callbackFailure;
 
     private GoogleAuthorizationCodeFlow flow = null;
-
-    public GoogleCallback() {
-        super();
-    }
 
     @PostConstruct
     private void verifyInit() {
