@@ -8,7 +8,6 @@ export A8_ENDPOINT_TYPE=https
 export CONTAINER_NAME=auth
 
 SERVER_PATH=/opt/ibm/wlp/usr/servers/defaultServer
-mkdir -p ${SERVER_PATH}/configDropins/overrides
 
 if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   echo Setting up etcd...
@@ -57,17 +56,17 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   export MESSAGEHUB_USER=$(etcdctl get /kafka/user)
   export MESSAGEHUB_PASSWORD=$(etcdctl get /passwords/kafka)
 
+  GAMEON_MODE=$(etcdctl get /global/mode)
+  export GAMEON_MODE=${GAMEON_MODE:-production}
+
   #to run with message hub, we need a jaas jar we can only obtain
   #from github, and have to use an extra config snippet to enable it.
-  cp ${SERVER_PATH}/configDropins/messageHub.xml ${SERVER_PATH}/configDropins/overrides
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 
   exec /opt/ibm/wlp/bin/server run defaultServer
 else
   echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
   echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
-
-  cp ${SERVER_PATH}/configDropins/localDev.xml ${SERVER_PATH}/configDropins/overrides
 
   exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
 fi

@@ -18,6 +18,7 @@ package org.gameontext.auth;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
@@ -36,25 +37,30 @@ public class Health extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
+    
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
+    private String callbackFailure;
+    
+    @Resource(lookup = "developmentMode")
+    private String developmentMode;
 	
     //dont use resource injection on these, or 
     //init of the entire class will fail, and 
     //then we won't work in local development mode.
-    String facebookAppId=null;
-    String facebookSecretKey=null;
-    String gitHubKey=null;
-    String gitHubSecret=null;
-    String googleKey=null;
-    String googleSecret=null;
-    String twitterKey=null;
-    String twitterSecret=null;
-    String devMode;
+    private String facebookAppId=null;
+    private String facebookSecretKey=null;
+    private String gitHubKey=null;
+    private String gitHubSecret=null;
+    private String googleKey=null;
+    private String googleSecret=null;
+    private String twitterKey=null;
+    private String twitterSecret=null;
     
     @Inject
-    Kafka kafka;
+    private Kafka kafka;
+    
+    private boolean allIsWell = false;
     
     /**
      * Lookup a string from jndi, and return null if it couldn't be found for any reason.
@@ -66,8 +72,6 @@ public class Health extends HttpServlet {
             InitialContext i = new InitialContext();
             return (String)i.lookup(name);
         }catch (NamingException e) {
-            //ignore.. the string will be null, and the health check will fail appropriately.
-            Log.log(Level.WARNING, this, "Auth healthcheck failed to lookup value for {0}",name);
         }
         return null;
     }
@@ -77,58 +81,86 @@ public class Health extends HttpServlet {
      */
     public Health() {
         super();
-            //grab the strings we didn't use @Resource for.
-            facebookAppId = lookup("facebookAppID");
-            facebookSecretKey = lookup("facebookSecret");
-            gitHubKey = lookup("gitHubOAuthKey");
-            gitHubSecret = lookup("gitHubOAuthSecret");
-            googleKey = lookup("googleOAuthConsumerKey");
-            googleSecret = lookup("googleOAuthConsumerSecret");
-            twitterKey = lookup("twitterOAuthConsumerKey");
-            twitterSecret = lookup("twitterOAuthConsumerSecret");
-            //this property is only set when running locally, else it will be null.
-            devMode = lookup("developmentMode");
+        //grab the strings we didn't use @Resource for.
+        facebookAppId = lookup("facebookAppID");
+        facebookSecretKey = lookup("facebookSecret");
+        gitHubKey = lookup("gitHubOAuthKey");
+        gitHubSecret = lookup("gitHubOAuthSecret");
+        googleKey = lookup("googleOAuthConsumerKey");
+        googleSecret = lookup("googleOAuthConsumerSecret");
+        twitterKey = lookup("twitterOAuthConsumerKey");
+        twitterSecret = lookup("twitterOAuthConsumerSecret");
     }
 
+    @PostConstruct
+    private void verifyInit() {
+        boolean badness = false;
+
+        if ( developmentMode == null ) {
+            developmentMode = "production";
+        }
+        Log.log(Level.INFO, this, "Development mode: {0}", developmentMode);
+
+        // Rather than exiting early, we'll list all the things that are wrong in one shot.
+        
+        if (callbackSuccess == null || callbackFailure == null) {
+            Log.log(Level.SEVERE, this, "Error identifying callback URLs, please check environment variables");
+            badness = true;
+        } 
+        
+        if (kafka == null ) {
+            Log.log(Level.SEVERE, this, "Required kafka service not initialized");
+            badness = true;
+        }
+
+        if ( !"development".equals(developmentMode) ) {
+            badness |= facebookAppId == null ||
+                    facebookSecretKey == null ||
+                    gitHubKey == null ||
+                    gitHubSecret == null ||
+                    googleKey == null ||
+                    googleSecret == null ||
+                    twitterKey == null ||
+                    twitterSecret == null;
+            if ( badness ) {
+                Log.log(Level.WARNING, this, "Error establishing social sign-on credentials. Please check environment variables: {0}", this.toString());
+            }
+        }
+
+        allIsWell = !badness;
+    }
+
+    
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-         if ( kafka!=null
-            && callbackFailure!=null 
-            && callbackSuccess!=null
-            && ( "development".equals(devMode) || 
-                 (
-                   facebookAppId!=null &&
-                   facebookSecretKey!=null &&
-                   gitHubKey!=null &&
-                   gitHubSecret!=null &&
-                   googleKey!=null &&
-                   googleSecret!=null &&
-                   twitterKey!=null &&
-                   twitterSecret!=null
-                  )
-                )
-            ) {
+         if ( allIsWell ) {
               response.setStatus(200);
               response.getWriter().append("OK ").append(request.getContextPath());
           } else {
-              Log.log(Level.WARNING, this, "Auth Health is Bad. DevMode?{0}, kafka?{1}, cbFail{2}, cbOK{3}, fbApp{4}, fbSec{5}, ghKey{6}, ghSec{7}, gKey{8}, gSec{9}, tKey{10}, tSec{11}",
-                      "'"+String.valueOf(devMode)+"'",
-                      kafka!=null,
-                      callbackFailure!=null,
-                      callbackSuccess!=null,
-                      facebookAppId!=null,
-                      facebookSecretKey!=null,
-                      gitHubKey!=null,
-                      gitHubSecret!=null,
-                      googleKey!=null,
-                      googleSecret!=null,
-                      twitterKey!=null,
-                      twitterSecret!=null
-                      );
               response.setStatus(503);
               response.getWriter().append("Service Unavailable");
           }
 	}
+	
+	public String toString() {
+	    // Format of %b translates null to false and not-null to true
+	    return String.format("allIsWell=%b, authCallbackURLSuccess=%b, authCallbackURLFailure=%b, "
+	            + "developmentMode=%b, "
+	            + "facebookAppID=%b, facebookSecret=%b, "
+	            + "gitHubOAuthKey=%b, gitHubOAuthSecret=%b, "
+	            + "googleOAuthConsumerKey=%b, googleOAuthConsumerSecret=%b, "
+	            + "twitterOAuthConsumerKey=%b, twitterOAuthConsumerSecret=%b, "
+	            + "kafka=%b",
+	            allIsWell, callbackSuccess, callbackFailure, 
+	            developmentMode,
+	            facebookAppId, facebookSecretKey,
+	            gitHubKey, gitHubSecret,
+	            googleKey, googleSecret,
+	            twitterKey, twitterSecret,
+	            kafka
+	            );
+ 	}
+
 }
