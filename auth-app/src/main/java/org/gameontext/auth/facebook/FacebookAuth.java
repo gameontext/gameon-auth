@@ -36,6 +36,7 @@ public class FacebookAuth extends HttpServlet {
 
     @Resource(lookup = "facebookAppID")
     String facebookAppId;
+    
     @Resource(lookup = "authURL")
     String authURL;
 

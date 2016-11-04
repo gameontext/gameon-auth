@@ -69,7 +69,9 @@
   <executor coreThreads="5"  />
 
   <!-- new API as a separate war -->
-  <webApplication contextRoot="/auth" id="auth-app" location="auth-app.war" name="auth-app">
-  </webApplication>
+  <webApplication contextRoot="/auth" id="auth-app" location="auth-app.war" name="auth-app" />
+  
+  <include location="${env.GAMEON_MODE}-local.xml" optional="true" />
+  <include location="${env.GAMEON_MODE}-logCollector.xml" optional="true" />
 
 </server>
