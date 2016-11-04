@@ -35,13 +35,10 @@ public class FacebookAuth extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "facebookAppID")
-    String facebookAppId;
+    private String facebookAppId;
     
     @Resource(lookup = "authURL")
-    String authURL;
-
-    public FacebookAuth() {
-    }
+    private String authURL;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

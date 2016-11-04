@@ -36,9 +36,6 @@ public class Kafka {
 
    private Producer<String,String> producer=null;
 
-   public Kafka(){
-   }
-
    @PostConstruct
    public void init(){
        

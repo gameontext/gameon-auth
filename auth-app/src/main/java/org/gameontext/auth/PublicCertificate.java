@@ -39,7 +39,7 @@ import javax.xml.bind.DatatypeConverter;
 public class PublicCertificate extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    java.security.cert.Certificate publicCert = null;
+    private java.security.cert.Certificate publicCert = null;
 
     /**
      * @see HttpServlet#HttpServlet()

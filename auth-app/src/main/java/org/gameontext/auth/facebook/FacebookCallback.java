@@ -42,17 +42,13 @@ public class FacebookCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "facebookAppID")
-    String appId;
+    private String appId;
     @Resource(lookup = "facebookSecret")
-    String secretKey;
+    private String secretKey;
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
-
-    public FacebookCallback() {
-        super();
-    }
+    private String callbackFailure;
 
     @PostConstruct
     private void verifyInit() {

@@ -44,15 +44,10 @@ public class DummyAuth extends JwtAuth {
     @Resource(lookup = "authCallbackURLSuccess")
     private String callbackSuccess;
     
-    /** Something like https://127.0.0.1/#/login/callback provided by the environment */
     @Resource(lookup = "developmentMode")
     private String developmentMode;
 
     private String callbackFragment;
-
-    public DummyAuth() {
-        super();
-    }
 
     @PostConstruct
     private void verifyInit() {

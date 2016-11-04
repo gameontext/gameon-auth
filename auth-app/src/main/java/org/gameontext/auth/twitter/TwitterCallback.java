@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.gameontext.auth.JwtAuth;
 
-import twitter4j.ResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -45,17 +44,13 @@ public class TwitterCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
 
     @Resource(lookup = "twitterOAuthConsumerKey")
-    String key;
+    private String key;
     @Resource(lookup = "twitterOAuthConsumerSecret")
-    String secret;
+    private String secret;
     @Resource(lookup = "authCallbackURLSuccess")
-    String callbackSuccess;
+    private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
-    String callbackFailure;
-
-    public TwitterCallback() {
-        super();
-    }
+    private String callbackFailure;
 
     @PostConstruct
     private void verifyInit() {
