@@ -27,7 +27,7 @@ import javax.naming.spi.InitialContextFactory;
  * allow jmockit to mock the InitialContext class without a VerifyError.
  */
 public class MockInitialContextFactory implements InitialContextFactory{
-	static Context context;
+	private static Context context;
 	
 	@Override
 	public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
