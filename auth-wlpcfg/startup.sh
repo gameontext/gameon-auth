@@ -60,6 +60,10 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   export KAFKA_SERVICE_URL=$(etcdctl get /kafka/url)
   export MESSAGEHUB_USER=$(etcdctl get /kafka/user)
   export MESSAGEHUB_PASSWORD=$(etcdctl get /passwords/kafka)
+  export A8_REGISTRY_URL=$(etcdctl get /amalgam8/registryUrl)
+  export A8_CONTROLLER_URL=$(etcdctl get /amalgam8/controllerUrl)
+  export A8_CONTROLLER_POLL=$(etcdctl get /amalgam8/controllerPoll)
+  JWT=$(etcdctl get /amalgam8/jwt)
 
   GAMEON_MODE=$(etcdctl get /global/mode)
   export GAMEON_MODE=${GAMEON_MODE:-production}
@@ -69,10 +73,19 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   #from github, and have to use an extra config snippet to enable it.
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 
-  exec /opt/ibm/wlp/bin/server run defaultServer
+  if [ -z "$A8_REGISTRY_URL" ]; then 
+    #no a8, just run server.
+    exec /opt/ibm/wlp/bin/server run defaultServer
+  else
+    #a8, configure security, and run via sidecar.
+    if [ ! -z "$JWT" ]; then     
+      export A8_REGISTRY_TOKEN=$JWT
+      export A8_CONTROLLER_TOKEN=$JWT
+    fi  
+    exec a8sidecar --proxy --register /opt/ibm/wlp/bin/server run defaultServer
+  fi
 else
-  echo A8_ENDPOINT_TYPE=${A8_ENDPOINT_TYPE}
-  echo A8_ENDPOINT_PORT=${A8_ENDPOINT_PORT}
-
-  exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
+  #no etcd for config, assume all config is supplied via environment already.
+  #local dev environment.
+  exec a8sidecar --proxy --register /opt/ibm/wlp/bin/server run defaultServer
 fi
