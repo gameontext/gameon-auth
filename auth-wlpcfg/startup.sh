@@ -73,19 +73,19 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   #from github, and have to use an extra config snippet to enable it.
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 
-  if [ -z A8_REGISTRY_URL ]; then 
+  if [ -z "$A8_REGISTRY_URL" ]; then 
     #no a8, just run server.
     exec /opt/ibm/wlp/bin/server run defaultServer
   else
     #a8, configure security, and run via sidecar.
-    if [ ! -z $JWT ]; then     
+    if [ ! -z "$JWT" ]; then     
       export A8_REGISTRY_TOKEN=$JWT
       export A8_CONTROLLER_TOKEN=$JWT
     fi  
-    exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
+    exec a8sidecar --log --proxy --register /opt/ibm/wlp/bin/server run defaultServer
   fi
 else
   #no etcd for config, assume all config is supplied via environment already.
   #local dev environment.
-  exec a8sidecar --log --proxy --register --supervise /opt/ibm/wlp/bin/server run defaultServer
+  exec a8sidecar --log --proxy --register /opt/ibm/wlp/bin/server run defaultServer
 fi
