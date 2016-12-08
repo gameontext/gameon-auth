@@ -82,10 +82,10 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
       export A8_REGISTRY_TOKEN=$JWT
       export A8_CONTROLLER_TOKEN=$JWT
     fi  
-    exec a8sidecar --log --proxy --register /opt/ibm/wlp/bin/server run defaultServer
+    exec a8sidecar --proxy --register /opt/ibm/wlp/bin/server run defaultServer
   fi
 else
   #no etcd for config, assume all config is supplied via environment already.
   #local dev environment.
-  exec a8sidecar --log --proxy --register /opt/ibm/wlp/bin/server run defaultServer
+  exec a8sidecar --proxy --register /opt/ibm/wlp/bin/server run defaultServer
 fi
