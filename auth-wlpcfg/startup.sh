@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Configure our link to etcd based on shared volume with secret
+if [ ! -z "$ETCD_SECRET" ]; then
+  . /data/primordial/setup.etcd.sh /data/primordial $ETCD_SECRET
+fi
+
 # Configure amalgam8 for this container
 export A8_SERVICE=auth:v1
 export A8_ENDPOINT_PORT=9443
