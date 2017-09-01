@@ -38,15 +38,15 @@ public class Health extends HttpServlet {
 
     @Resource(lookup = "authCallbackURLSuccess")
     private String callbackSuccess;
-    
+
     @Resource(lookup = "authCallbackURLFailure")
     private String callbackFailure;
-    
+
     @Resource(lookup = "developmentMode")
     private String developmentMode;
-	
-    //dont use resource injection on these, or 
-    //init of the entire class will fail, and 
+
+    //dont use resource injection on these, or
+    //init of the entire class will fail, and
     //then we won't work in local development mode.
     private String facebookAppId=null;
     private String facebookSecretKey=null;
@@ -56,12 +56,12 @@ public class Health extends HttpServlet {
     private String googleSecret=null;
     private String twitterKey=null;
     private String twitterSecret=null;
-    
+
     @Inject
     private Kafka kafka;
-    
+
     private boolean allIsWell = false;
-    
+
     /**
      * Lookup a string from jndi, and return null if it couldn't be found for any reason.
      * @param name
@@ -75,7 +75,7 @@ public class Health extends HttpServlet {
         }
         return null;
     }
-    
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -102,12 +102,12 @@ public class Health extends HttpServlet {
         Log.log(Level.INFO, this, "Development mode: {0}", developmentMode);
 
         // Rather than exiting early, we'll list all the things that are wrong in one shot.
-        
+
         if (callbackSuccess == null || callbackFailure == null) {
             Log.log(Level.SEVERE, this, "Error identifying callback URLs, please check environment variables");
             badness = true;
-        } 
-        
+        }
+
         if (kafka == null ) {
             Log.log(Level.SEVERE, this, "Required kafka service not initialized");
             badness = true;
@@ -130,20 +130,20 @@ public class Health extends HttpServlet {
         allIsWell = !badness;
     }
 
-    
+
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
          if ( allIsWell ) {
               response.setStatus(200);
-              response.getWriter().append("OK ").append(request.getContextPath());
+              response.getWriter().append("{\"status\":\"UP\"}");
           } else {
               response.setStatus(503);
-              response.getWriter().append("Service Unavailable");
+              response.getWriter().append("{\"status\":\"DOWN\"}");
           }
 	}
-	
+
 	public String toString() {
 	    // Format of %b translates null to false and not-null to true
 	    return String.format("allIsWell=%b, authCallbackURLSuccess=%b, authCallbackURLFailure=%b, "
@@ -153,7 +153,7 @@ public class Health extends HttpServlet {
 	            + "googleOAuthConsumerKey=%b, googleOAuthConsumerSecret=%b, "
 	            + "twitterOAuthConsumerKey=%b, twitterOAuthConsumerSecret=%b, "
 	            + "kafka=%b",
-	            allIsWell, callbackSuccess, callbackFailure, 
+	            allIsWell, callbackSuccess, callbackFailure,
 	            developmentMode,
 	            facebookAppId, facebookSecretKey,
 	            gitHubKey, gitHubSecret,
