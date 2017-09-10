@@ -50,7 +50,6 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   export FRONT_END_FAIL_CALLBACK=$(etcdctl get /auth/failcallback)
   export FRONT_END_AUTH_URL=$(etcdctl get /auth/url)
 
-  export LOGSTASH_ENDPOINT=$(etcdctl get /logstash/endpoint)
   export LOGMET_HOST=$(etcdctl get /logmet/host)
   export LOGMET_PORT=$(etcdctl get /logmet/port)
   export LOGMET_TENANT=$(etcdctl get /logmet/tenant)
