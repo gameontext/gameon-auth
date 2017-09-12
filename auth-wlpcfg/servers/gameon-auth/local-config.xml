@@ -4,5 +4,6 @@
 
   <applicationMonitor updateTrigger="polled" pollingRate="30s"/>
   <config updateTrigger="polled" monitorInterval="30s" />
+  <logging traceSpecification="*=info:org.gameontext.*=all"/>
 
 </server>
