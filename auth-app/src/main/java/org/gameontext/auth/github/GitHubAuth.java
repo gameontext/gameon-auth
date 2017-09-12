@@ -17,6 +17,7 @@ package org.gameontext.auth.github;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -24,6 +25,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.gameontext.auth.Log;
 
 @WebServlet("/GitHubAuth")
 public class GitHubAuth extends HttpServlet {
@@ -44,11 +47,12 @@ public class GitHubAuth extends HttpServlet {
             String state=stateUUID.toString();
             request.getSession().setAttribute("github", state);
 
-            // google will tell the users browser to go to this address once
+            // GitHub will tell the users browser to go to this address once
             // they are done authing.
             String callbackURL = authURL + "/GitHubCallback";
 
             String newUrl = url + "?client_id="+key+"&redirect_url="+callbackURL+"&scope=user:email&state="+state;
+            Log.log(Level.FINEST, this, "GitHub Auth with callback: {0}", newUrl);
 
             // send the user to google to be authenticated.
             response.sendRedirect(newUrl);

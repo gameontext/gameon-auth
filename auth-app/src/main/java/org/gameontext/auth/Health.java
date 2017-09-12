@@ -36,14 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 public class Health extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-    @Resource(lookup = "authCallbackURLSuccess")
     private String callbackSuccess;
-
-    @Resource(lookup = "authCallbackURLFailure")
     private String callbackFailure;
-
-    @Resource(lookup = "developmentMode")
     private String developmentMode;
+    private String authURL;
 
     //dont use resource injection on these, or
     //init of the entire class will fail, and
@@ -81,6 +77,10 @@ public class Health extends HttpServlet {
      */
     public Health() {
         super();
+        authURL = lookup("authURL");
+        developmentMode = lookup("developmentMode");
+        callbackFailure = lookup("authCallbackURLFailure");
+        callbackSuccess = lookup("authCallbackURLSuccess");
         //grab the strings we didn't use @Resource for.
         facebookAppId = lookup("facebookAppID");
         facebookSecretKey = lookup("facebookSecret");
@@ -102,6 +102,11 @@ public class Health extends HttpServlet {
         Log.log(Level.INFO, this, "Development mode: {0}", developmentMode);
 
         // Rather than exiting early, we'll list all the things that are wrong in one shot.
+
+        if (authURL == null ) {
+            Log.log(Level.SEVERE, this, "Error identifying base authentication URL");
+            badness = true;
+        }
 
         if (callbackSuccess == null || callbackFailure == null) {
             Log.log(Level.SEVERE, this, "Error identifying callback URLs, please check environment variables");
