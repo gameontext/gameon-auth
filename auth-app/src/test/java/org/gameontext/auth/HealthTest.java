@@ -33,7 +33,7 @@ import mockit.Verifications;
 public class HealthTest {
     @Mocked
     Context context;
-	
+
 	@Mocked
     Kafka kafka;
 
@@ -46,10 +46,13 @@ public class HealthTest {
         System.setProperty("java.naming.factory.initial", MockInitialContextFactory.class.getName());
         MockInitialContextFactory.setContext(context);
     }
-    
+
     @Test
     public void testAllIsWell() throws Exception {
         new Expectations() {{
+            context.lookup("authURL"); result = "authURL";
+            context.lookup("authCallbackURLFailure"); result = "authCallbackURLFailure";
+            context.lookup("authCallbackURLSuccess"); result = "authCallbackURLSuccess";
             context.lookup("facebookAppID"); result = "facebookAppID";
             context.lookup("facebookSecret"); result = "facebookSecret";
             context.lookup("gitHubOAuthKey"); result = "gitHubOAuthKey";
@@ -61,15 +64,13 @@ public class HealthTest {
         }};
 
         Health health = new Health();
-        
+
         // CDI injected resources (post constructor)
-        Deencapsulation.setField(health, "callbackFailure", "/something/#/fail");
-        Deencapsulation.setField(health, "callbackSuccess", "/something/#/success");
         Deencapsulation.setField(health, "kafka", kafka);
 
         // @PostConstruct validation
         Deencapsulation.invoke(health, "verifyInit");
-        
+
         // Make sure all is well
         new Verifications() {{
             Assert.assertTrue("All should be well: " + health.toString(), Deencapsulation.getField(health, "allIsWell"));
@@ -79,38 +80,46 @@ public class HealthTest {
 
     @Test
     public void testAuthDevelopmentModeOk() throws Exception {
+        new Expectations() {{
+            context.lookup("authURL"); result = "authURL";
+            context.lookup("authCallbackURLFailure"); result = "authCallbackURLFailure";
+            context.lookup("authCallbackURLSuccess"); result = "authCallbackURLSuccess";
+            context.lookup("developmentMode"); result = "development";
+        }};
+
         // In development mode, sign-on keys can be missing
         Health health = new Health();
-        
+
         // CDI injected resources (post constructor)
-        Deencapsulation.setField(health, "callbackFailure", "/something/#/fail");
-        Deencapsulation.setField(health, "callbackSuccess", "/something/#/success");
-        Deencapsulation.setField(health, "developmentMode", "development");
         Deencapsulation.setField(health, "kafka", kafka);
 
         // @PostConstruct validation
         Deencapsulation.invoke(health, "verifyInit");
-        
+
         // Make sure all is well
         new Verifications() {{
             Assert.assertTrue("All should be well: " + health.toString(), Deencapsulation.getField(health, "allIsWell"));
         }};
     }
-    
+
     @Test
     public void testAuthOtherModeFails() throws Exception {
+        new Expectations() {{
+            context.lookup("authURL"); result = "authURL";
+            context.lookup("authCallbackURLFailure"); result = "authCallbackURLFailure";
+            context.lookup("authCallbackURLSuccess"); result = "authCallbackURLSuccess";
+            context.lookup("developmentMode"); result = "production";
+        }};
+
         // In development mode, sign-on keys can be missing
         Health health = new Health();
-        
+
         // CDI injected resources (post constructor)
-        Deencapsulation.setField(health, "callbackFailure", "/something/#/fail");
-        Deencapsulation.setField(health, "callbackSuccess", "/something/#/success");
-        Deencapsulation.setField(health, "developmentMode", "production");
         Deencapsulation.setField(health, "kafka", kafka);
 
         // @PostConstruct validation
         Deencapsulation.invoke(health, "verifyInit");
-        
+
         String result = health.toString();
         new Verifications() {{
             Assert.assertFalse("All should not be well: " + health.toString(), Deencapsulation.getField(health, "allIsWell"));
@@ -128,13 +137,13 @@ public class HealthTest {
     @Test
     public void testMissingRequiredPieces() throws Exception {
         Health health = new Health();
-        
+
         // CDI injected resources (post constructor)
         Deencapsulation.setField(health, "developmentMode", "development");
 
         // @PostConstruct validation
         Deencapsulation.invoke(health, "verifyInit");
-        
+
         String result = health.toString();
         new Verifications() {{
             Assert.assertFalse("All should not be well: " + health.toString(), Deencapsulation.getField(health, "allIsWell"));

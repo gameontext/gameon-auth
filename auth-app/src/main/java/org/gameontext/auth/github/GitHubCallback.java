@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.gameontext.auth.JwtAuth;
+import org.gameontext.auth.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +58,8 @@ public class GitHubCallback extends JwtAuth {
     String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
     String callbackFailure;
+    @Resource(lookup = "authURL")
+    private String authURL;
 
     public GitHubCallback() {
         super();
@@ -77,10 +81,9 @@ public class GitHubCallback extends JwtAuth {
 
         String state = (String) request.getSession().getAttribute("github");
 
-        //now we need to invoke the access_token endpoint to swap the code for a token.
-        StringBuffer callbackURL = request.getRequestURL();
-        int index = callbackURL.lastIndexOf("/");
-        callbackURL.replace(index, callbackURL.length(), "").append("/GitHubCallback");
+        // GitHub will tell the users browser to go to this address once
+        // they are done authing.
+        String callbackURL = authURL + "/GitHubCallback";
 
         HttpRequestFactory requestFactory;
         try {

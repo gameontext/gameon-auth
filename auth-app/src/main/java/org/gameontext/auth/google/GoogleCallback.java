@@ -18,6 +18,7 @@ package org.gameontext.auth.google;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.gameontext.auth.JwtAuth;
+import org.gameontext.auth.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +51,8 @@ public class GoogleCallback extends JwtAuth {
     private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
     private String callbackFailure;
+    @Resource(lookup = "authURL")
+    private String authURL;
 
     private GoogleAuthorizationCodeFlow flow = null;
 
@@ -113,9 +117,11 @@ public class GoogleCallback extends JwtAuth {
         flow = (GoogleAuthorizationCodeFlow) request.getSession().getAttribute("google");
         String code = request.getParameter("code");
 
-        StringBuffer callbackURL = request.getRequestURL();
-        int index = callbackURL.lastIndexOf("/");
-        callbackURL.replace(index, callbackURL.length(), "").append("/GoogleCallback");
+        // google will tell the users browser to go to this address once
+        // they are done authing.
+        String callbackURL = authURL + "/GoogleCallback";
+
+        Log.log(Level.FINEST, this, "Google token URL: {0}", callbackURL);
 
         GoogleTokenResponse gResponse = flow.newTokenRequest(code).setRedirectUri(callbackURL.toString()).execute();
         Map<String, String> claims = introspectAuth(gResponse);
