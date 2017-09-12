@@ -18,6 +18,7 @@ package org.gameontext.auth.facebook;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.gameontext.auth.JwtAuth;
+import org.gameontext.auth.Log;
 
 import com.restfb.DefaultFacebookClient;
 import com.restfb.DefaultWebRequestor;
@@ -49,6 +51,8 @@ public class FacebookCallback extends JwtAuth {
     private String callbackSuccess;
     @Resource(lookup = "authCallbackURLFailure")
     private String callbackFailure;
+    @Resource(lookup = "authURL")
+    private String authURL;
 
     @PostConstruct
     private void verifyInit() {
@@ -128,9 +132,9 @@ public class FacebookCallback extends JwtAuth {
 
         // need the redirect url for fb to give us a token from the code it
         // supplied.
-        StringBuffer callbackURL = request.getRequestURL();
-        int index = callbackURL.lastIndexOf("/");
-        callbackURL.replace(index, callbackURL.length(), "").append("/FacebookCallback");
+        String callbackURL = authURL + "/FacebookCallback";
+
+        Log.log(Level.FINEST, this, "Facebook token URL: {0}", callbackURL);
 
         // convert the code into an access token.
         FacebookClient.AccessToken token = getFacebookUserToken(code, callbackURL.toString());

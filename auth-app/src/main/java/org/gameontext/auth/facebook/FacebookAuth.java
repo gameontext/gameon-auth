@@ -16,6 +16,7 @@
 package org.gameontext.auth.facebook;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -23,6 +24,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.gameontext.auth.Log;
 
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
@@ -36,7 +39,7 @@ public class FacebookAuth extends HttpServlet {
 
     @Resource(lookup = "facebookAppID")
     private String facebookAppId;
-    
+
     @Resource(lookup = "authURL")
     private String authURL;
 
@@ -52,6 +55,8 @@ public class FacebookAuth extends HttpServlet {
 
         FacebookClient client = new DefaultFacebookClient(Version.VERSION_2_5);
         String loginUrl = client.getLoginDialogUrl(facebookAppId, callbackURL, scopeBuilder);
+
+        Log.log(Level.FINEST, this, "Facebook Auth with callback: {0}", loginUrl);
 
         // redirect the user to facebook to be authenticated.
         response.sendRedirect(loginUrl);

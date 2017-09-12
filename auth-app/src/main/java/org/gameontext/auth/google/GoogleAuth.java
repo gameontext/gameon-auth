@@ -17,6 +17,7 @@ package org.gameontext.auth.google;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -24,6 +25,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.gameontext.auth.Log;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.HttpTransport;
@@ -63,6 +66,8 @@ public class GoogleAuth extends HttpServlet {
             request.getSession().setAttribute("google", flow);
 
             String authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(callbackURL).build();
+            Log.log(Level.FINEST, this, "Google Auth with callback: {0}", authorizationUrl);
+
             // send the user to google to be authenticated.
             response.sendRedirect(authorizationUrl);
 
