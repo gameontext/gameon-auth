@@ -16,12 +16,16 @@
 package org.gameontext.auth.facebook;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -84,7 +88,25 @@ public class FacebookCallback extends JwtAuth {
                         + redirectUrl + "&client_secret=" + secretKey + "&code=" + code);
 
         // finally, restfb can now process the reply to get us our access token.
-        return DefaultFacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
+        String queryString = getQueryString(accessTokenResponse.getBody());
+
+        return DefaultFacebookClient.AccessToken.fromQueryString(queryString);
+    }
+
+    /**
+     * Given a JSON String, returns a query String that can be used to make an AccessToken.
+     *
+     * @param accessTokenResponse A JSON String response from an auth request to Facebook.
+     * @return A query string that can be used to make an AccessToken.
+     */
+    private String getQueryString(String accessTokenResponse) {
+        JsonReader reader = Json.createReader(new StringReader(accessTokenResponse));
+        JsonObject jsonObject = reader.readObject();
+
+        String access_token = jsonObject.getString("access_token");
+        String expires = jsonObject.getString("expires_in");
+
+        return "access_token=" + access_token + "&expires=" + expires;
     }
 
     /**
@@ -154,7 +176,5 @@ public class FacebookCallback extends JwtAuth {
             System.out.println("New User Authed: " + claims.get("id"));
             response.sendRedirect(callbackSuccess + "/" + newJwt);
         }
-
     }
-
 }
