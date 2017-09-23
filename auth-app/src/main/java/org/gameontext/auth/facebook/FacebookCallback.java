@@ -39,6 +39,9 @@ import com.restfb.WebRequestor;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.User;
 
+import twitter4j.JSONException;
+import twitter4j.JSONObject;
+
 @WebServlet("/FacebookCallback")
 public class FacebookCallback extends JwtAuth {
     private static final long serialVersionUID = 1L;
@@ -70,8 +73,10 @@ public class FacebookCallback extends JwtAuth {
      * @return the acccess token
      * @throws IOException
      *             if anything goes wrong.
+     * @throws JSONException
+     *             if fail to parse access token response.
      */
-    private FacebookClient.AccessToken getFacebookUserToken(String code, String redirectUrl) throws IOException {
+    private FacebookClient.AccessToken getFacebookUserToken(String code, String redirectUrl) throws IOException, JSONException {
         // restfb doesn't seem to have an obvious method to convert a response
         // code into an access token
         // but according to the spec, this is the easy way to do it.. we'll use
@@ -84,7 +89,23 @@ public class FacebookCallback extends JwtAuth {
                         + redirectUrl + "&client_secret=" + secretKey + "&code=" + code);
 
         // finally, restfb can now process the reply to get us our access token.
-        return DefaultFacebookClient.AccessToken.fromQueryString(accessTokenResponse.getBody());
+        String queryString = getQueryString(accessTokenResponse.getBody());
+
+        return DefaultFacebookClient.AccessToken.fromQueryString(queryString);
+    }
+
+    /**
+     * Given a JSON String, returns a query String that can be used to make an AccessToken.
+     *
+     * @param accessTokenResponse A JSON String response from a auth request to Facebook.
+     * @return A query string that can be used to make an AccessToken.
+     * @throws JSONException if it fails to parse the accessTokenResponse.
+     */
+    private String getQueryString(String accessTokenResponse) throws JSONException {
+        JSONObject obj = new JSONObject(accessTokenResponse);
+        String access_token = obj.getString("access_token");
+        String expires = obj.getString("expires_in");
+        return "access_token=" + access_token + "&expires=" + expires;
     }
 
     /**
@@ -137,24 +158,26 @@ public class FacebookCallback extends JwtAuth {
         Log.log(Level.FINEST, this, "Facebook token URL: {0}", callbackURL);
 
         // convert the code into an access token.
-        FacebookClient.AccessToken token = getFacebookUserToken(code, callbackURL.toString());
+        try {
+            FacebookClient.AccessToken token = getFacebookUserToken(code, callbackURL.toString());
+            String accessToken = token.getAccessToken();
 
-        String accessToken = token.getAccessToken();
+            Map<String, String> claims = introspectAuth(accessToken);
 
-        Map<String, String> claims = introspectAuth(accessToken);
+            // if auth key was no longer valid, we won't build a jwt. redirect back
+            // to start.
+            if (!"true".equals(claims.get("valid"))) {
+                response.sendRedirect(callbackFailure);
+            } else {
+                String newJwt = createJwt(claims);
 
-        // if auth key was no longer valid, we won't build a jwt. redirect back
-        // to start.
-        if (!"true".equals(claims.get("valid"))) {
+                // debug.
+                System.out.println("New User Authed: " + claims.get("id"));
+                response.sendRedirect(callbackSuccess + "/" + newJwt);
+            }
+        } catch (JSONException e) {
+            Log.log(Level.WARNING, this, "Failed to parse access token response JSON.");
             response.sendRedirect(callbackFailure);
-        } else {
-            String newJwt = createJwt(claims);
-
-            // debug.
-            System.out.println("New User Authed: " + claims.get("id"));
-            response.sendRedirect(callbackSuccess + "/" + newJwt);
         }
-
     }
-
 }
