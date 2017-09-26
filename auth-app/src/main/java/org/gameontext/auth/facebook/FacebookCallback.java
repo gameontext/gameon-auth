@@ -99,12 +99,12 @@ public class FacebookCallback extends JwtAuth {
      * @param accessTokenResponse A JSON String response from an auth request to Facebook.
      * @return A query string that can be used to make an AccessToken.
      */
-    private String getQueryString(String accessTokenResponse) {
+    private static String getQueryString(String accessTokenResponse) {
         JsonReader reader = Json.createReader(new StringReader(accessTokenResponse));
         JsonObject jsonObject = reader.readObject();
 
         String access_token = jsonObject.getString("access_token");
-        String expires = jsonObject.getString("expires_in");
+        int expires = jsonObject.getInt("expires_in");
 
         return "access_token=" + access_token + "&expires=" + expires;
     }
