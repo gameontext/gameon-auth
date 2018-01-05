@@ -57,6 +57,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   #from github, and have to use an extra config snippet to enable it.
   export MESSAGEHUB_USER=$(etcdctl get /kafka/user)
   export MESSAGEHUB_PASSWORD=$(etcdctl get /passwords/kafka)
+  cd ${SERVER_PATH}
   wget https://github.com/ibm-messaging/message-hub-samples/raw/master/java/message-hub-liberty-sample/lib-message-hub/messagehub.login-1.0.0.jar
 fi
 
