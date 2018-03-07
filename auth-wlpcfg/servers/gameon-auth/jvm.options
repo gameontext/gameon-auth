@@ -1,0 +1,3 @@
+#prefer tlsv1.2 over earlier versions.
+-Djdk.tls.client.protocols=TLSv1.2,TLSv1.1,TLSv1 
+-Dhttps.protocols=TLSv1.2,TLSv1.1,TLSv1 
