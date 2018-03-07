@@ -67,6 +67,8 @@ if [ -f /etc/cert/cert.pem ]; then
   mkdir -p ${SERVER_PATH}/resources/security
   echo "-cd dir"
   cd ${SERVER_PATH}/resources/
+  echo "-importing jvm truststore to server truststore"
+  keytool -importkeystore -srckeystore $JAVA_HOME/lib/security/cacerts -destkeystore keystore/truststore.jks -srcstorepass changeit -deststorepass truststore
   echo "-converting pem to pkcs12"
   openssl pkcs12 -passin pass:keystore -passout pass:keystore -export -out cert.pkcs12 -in /etc/cert/cert.pem
   echo "-importing pem to truststore.jks"
@@ -77,8 +79,8 @@ if [ -f /etc/cert/cert.pem ]; then
   keytool -delete -storepass testOnlyKeystore -alias endeca -keystore security/key.jks
   echo "-importing pkcs12 to key.jks"
   keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore cert.pkcs12 -srcstoretype PKCS12 -destkeystore security/key.jks -deststoretype JKS
-  echo "done"
   cd ${SERVER_PATH}
+  echo "done"
 fi
 
 exec /opt/ol/wlp/bin/server run defaultServer
