@@ -77,6 +77,14 @@ if [ -f /etc/cert/cert.pem ]; then
   keytool -delete -storepass testOnlyKeystore -alias endeca -keystore security/key.jks
   echo "-importing pkcs12 to key.jks"
   keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore cert.pkcs12 -srcstoretype PKCS12 -destkeystore security/key.jks -deststoretype JKS
+
+  echo | openssl s_client -showcerts -servername *.googleapis.com -connect www.googleapis.com:443 </dev/null 2>&1 | sed -ne '/BEGIN\ CERTIFICATE/,/END\ CERTIFICATE/ p' > /etc/cert/googleca.pem
+ 
+  keytool -import -v -trustcacerts -alias googleca -file /etc/cert/googleca.pem -storepass truststore -keypass keystore -noprompt -keystore security/truststore.jks
+
+  curl https://secure.globalsign.net/cacert/Root-R2.crt > /etc/cert/globalsign-r2.crt
+  keytool -import -v -trustcacerts -alias globalsign-r2 -file /etc/cert/globalsign-r2.crt -storepass truststore -keypass keystore -noprompt -keystore security/truststore.jks
+
   echo "done"
   cd ${SERVER_PATH}
 fi
