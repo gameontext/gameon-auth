@@ -1,9 +1,9 @@
-FROM gameontext/docker-liberty-custom:master-9
+FROM gameontext/docker-liberty-custom:master-12
 
 ENV SERVERDIRNAME auth
 
 COPY ./startup.sh /opt/startup.sh
-ADD ./servers/gameon-auth /opt/ol/wlp/usr/servers/defaultServer/
+COPY ./servers/gameon-auth /opt/ol/wlp/usr/servers/defaultServer/
 
 CMD ["/opt/startup.sh"]
 
