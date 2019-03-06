@@ -32,7 +32,7 @@ dependencies {
         exclude group: 'org.slf4j'
     }
 
-    compile ('io.jsonwebtoken:jjwt:0.5.1') {
+    compile ('io.jsonwebtoken:jjwt:0.9.1') {
         exclude group: 'org.slf4j'
     }
     compile ('com.google.oauth-client:google-oauth-client:1.20.0') {
