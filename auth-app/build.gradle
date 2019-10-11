@@ -2,6 +2,10 @@ apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'jacoco'
 
+jacoco {
+  toolVersion = "0.8.4"
+}
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -24,7 +28,10 @@ dependencies {
     providedCompile 'javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.0'
     providedCompile 'javax.enterprise:cdi-api:1.2'
 
-	//pick our own level of slf4j, to avoid conflicts from all the libs..
+    //add xml.bind in case it's missing due to jdk11 onward removing it.
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
+
+    //pick our own level of slf4j, to avoid conflicts from all the libs..
     compile 'org.slf4j:slf4j-jdk14:1.7.13'
     compile 'org.slf4j:jcl-over-slf4j:1.7.13'
 
@@ -54,13 +61,13 @@ dependencies {
         exclude group: 'org.slf4j'
     }
 
-    jmockit 'org.jmockit:jmockit:1.22'
+    jmockit 'org.jmockit:jmockit:1.34'
     testCompile 'junit:junit:4.12'
     testCompile 'org.glassfish:javax.json:1.0.4'
 }
 
 test {
-   jvmArgs "-javaagent:${configurations.jmockit.singleFile.absolutePath}"
+   jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
 
    jacoco {
      excludes = ["*\$Impl_*"]
