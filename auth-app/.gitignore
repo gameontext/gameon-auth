@@ -12,5 +12,5 @@
 /build
 /src/main/java/META-INF/
 /src/main/webapp/META-INF/
-
 /target
+src/main/resources/application-local.properties

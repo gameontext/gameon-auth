@@ -1,101 +1,34 @@
-apply plugin: 'war'
-apply plugin: 'eclipse-wtp'
-apply plugin: 'jacoco'
-
-jacoco {
-  toolVersion = "0.8.4"
+plugins {
+	id 'org.springframework.boot' version '2.3.2.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
 }
 
-sourceCompatibility = 1.8
+group = 'gameontext'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
 
 repositories {
-	maven { url "http://twitter4j.org/maven2" }
 	mavenCentral()
 }
 
-configurations {
-    jmockit
-    testCompile.extendsFrom jmockit
-}
-
 dependencies {
-    providedCompile group:'javax.websocket', name:'javax.websocket-api', version:'1.1'
-    providedCompile group:'javax.ws.rs', name:'javax.ws.rs-api', version:'2.0'
-    providedCompile group:'javax.json', name:'javax.json-api', version:'1.0'
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
-    providedCompile 'javax.annotation:javax.annotation-api:1.2'
-    providedCompile 'javax.inject:javax.inject:1'
-    providedCompile 'javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.0'
-    providedCompile 'javax.enterprise:cdi-api:1.2'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.security:spring-security-oauth2-jose'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
 
-    //add xml.bind in case it's missing due to jdk11 onward removing it.
-    compile 'javax.xml.bind:jaxb-api:2.3.0'
-
-    //pick our own level of slf4j, to avoid conflicts from all the libs..
-    compile 'org.slf4j:slf4j-jdk14:1.7.13'
-    compile 'org.slf4j:jcl-over-slf4j:1.7.13'
-
-    compile ('org.apache.httpcomponents:httpclient:4.5.2') {
-        exclude group: 'org.slf4j'
-    }
-
-    compile ('io.jsonwebtoken:jjwt:0.9.1') {
-        exclude group: 'org.slf4j'
-    }
-    compile ('com.google.oauth-client:google-oauth-client:1.20.0') {
-        exclude group: 'org.slf4j'
-    }
-    compile ('com.google.api-client:google-api-client:1.19.1') {
-        exclude group: 'org.slf4j'
-    }
-
-    compile ('org.twitter4j:twitter4j-core:4.0.5-SNAPSHOT') {
-        exclude group: 'org.slf4j'
-    }
-    compile ('com.restfb:restfb:1.15.0') {
-        exclude group: 'org.slf4j'
-    }
-
-    // kafka client =)
-    compile ('org.apache.kafka:kafka-clients:0.9.0.1') {
-        exclude group: 'org.slf4j'
-    }
-
-    jmockit 'org.jmockit:jmockit:1.34'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.glassfish:javax.json:1.0.4'
+	implementation 'com.nimbusds:nimbus-jose-jwt'
+	
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 test {
-   jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
-
-   jacoco {
-     excludes = ["*\$Impl_*"]
-   }   
-}
-
-// Set the Eclipse facets to use 3.1 of the Dynamic Web Module which requires Java 1.7 (at least)
-// Also include JAX-RS and javascript
-eclipse.wtp.facet {
-    // Clear default facets to work around bug where you get duplicates including wst 2.4
-    facets = []
-    facet name: 'jst.java', type: 'fixed'
-    facet name: 'jst.web', type: 'fixed'
-    facet name: 'jst.web', version: '3.1'
-    facet name: 'jst.java', version: '1.8'
-    facet name: 'jst.jaxrs', version: '2.0'
-    facet name: 'wst.jsdt.web', type: 'fixed'
-    facet name: 'wst.jsdt.web', version: '1.0'
-}
-
-// Add additional code conventions
-eclipse.jdt.file {
-    withProperties {
-      it['org.eclipse.jdt.core.formatter.indentation.size'] = '4'
-      it['org.eclipse.jdt.core.formatter.tabulation.size'] = '4'
-      it['org.eclipse.jdt.core.formatter.tabulation.char'] = 'space'
-      it['org.eclipse.jdt.core.formatter.indent_switchstatements_compare_to_cases'] = 'true'
-      it['org.eclipse.jdt.core.formatter.indent_switchstatements_compare_to_switch'] = 'true'
-      it['org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation'] = '18'
-    }
+	useJUnitPlatform()
 }

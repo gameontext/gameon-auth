@@ -1,13 +1,10 @@
-FROM gameontext/docker-liberty-custom:master-14
+FROM adoptopenjdk/openjdk8-openj9:ubi
 
-ENV SERVERDIRNAME auth
+COPY app.jar /
+COPY startup.sh /
 
-COPY ./startup.sh /opt/startup.sh
-COPY ./servers/gameon-auth /opt/ol/wlp/usr/servers/defaultServer/
+RUN mkdir /etc/certs && chmod 777 /etc/certs
 
-CMD ["/opt/startup.sh"]
+HEALTHCHECK --timeout=10s --start-period=40s CMD wget -q -O /dev/null http://localhost:9080/auth/health
 
-HEALTHCHECK \
-  --timeout=10s \
-  --start-period=40s \
-  CMD wget -q -O /dev/null http://localhost:9080/auth/health
+CMD ["/startup.sh"]
