@@ -8,11 +8,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
  
-	@Value("${frontend.success.callback}")
-	private String successUrl;
+    @Value("${frontend.success.callback}")
+    private String successUrl;
 
-	@Value("${frontend.failure.callback}")
+    @Value("${frontend.failure.callback}")
     private String failureUrl;
+
+    @Value("${frontend.auth.url}")
+    private String authUrl;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -44,6 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .baseUri("/auth/oauth2/code/*")
              .and()
               .failureUrl(failureUrl)
-              .defaultSuccessUrl("/auth/token", true);            
+              .defaultSuccessUrl(authUrl+"/token", true);            
     }
 }
