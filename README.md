@@ -2,9 +2,6 @@
 
 Implementation of GameOn Auth project, using Spring Security.
 
-*NOTE:* Still a work in progress, but successful replacement of Gameon Auth confirmed using Docker Compose.
-*NOTE:* *IMPORTANT* No Twitter support yet! (Twitter is OAuth 1.0a, not OAuth2, so needs it's own handler from scratch.. yay!!)
-
 ## Overview
 
 Initial Urls:
@@ -41,6 +38,7 @@ The appropriate information is then retrieved from the Spring Security authentic
 *Note:* Had to add a secondary domain name used to access the `/auth/dummy` endpoint because that's emulating an entirely different oauth2 server, we may yet revisit this 
 idea, but that's how it sits for now. 
 
+Twitter isn't an OAuth2 provider, so the entire Twitter flow is handled by a TwitterController (RestController) that uses twitter4j to do the login, based on code from the old auth impl.
 
 
 
