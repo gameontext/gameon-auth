@@ -39,15 +39,6 @@ public class AuthCompatRestController {
         headers.setLocation(redirect);
         return new ResponseEntity<>(headers,HttpStatus.FOUND);
     }
-    @GetMapping(value="/TwitterAuth")
-    public ResponseEntity<Object> tauth( HttpServletResponse httpServletResponse)
-      throws IOException, URISyntaxException{
-        String redirectUrl = authBase+"/oauth2/authorization/twitter";
-        URI redirect = new URI(redirectUrl);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(redirect);
-        return new ResponseEntity<>(headers,HttpStatus.FOUND);
-    }
     @GetMapping(value="/GitHubAuth")
     public ResponseEntity<Object> ghauth( HttpServletResponse httpServletResponse)
       throws IOException, URISyntaxException{

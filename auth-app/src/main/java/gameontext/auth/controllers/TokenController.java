@@ -77,8 +77,6 @@ public class TokenController {
         String jwt = jwtSigner.createJwt(id, name);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", successUrl + "/" + jwt);
-        return new ResponseEntity<String>(headers,HttpStatus.FOUND);
-        
-        
+        return new ResponseEntity<String>(headers,HttpStatus.FOUND);    
     }
 }

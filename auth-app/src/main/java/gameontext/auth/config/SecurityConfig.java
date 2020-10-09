@@ -27,10 +27,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                       "/resources/**",     //static resources (not used)
                       "/auth/DummyAuth",   //old auth compat url
                       "/auth/GoogleAuth",  //old auth compat url
-                      "/auth/TwitterAuth", //old auth compat url
                       "/auth/GitHubAuth",  //old auth compat url
                       "/auth/FacebookAuth",//old auth compat url
                       "/auth/health",      //health check for docker/k8s
+                      "/auth/TwitterAuth",     //twitter controller auth compat url
+                      "/auth/TwitterCallback", //twitter controller callback url.    
+                      "/auth/PublicCertificate", //public cert endpoint used by browser
                       "/auth/dummy/**",    //the new dummy auth provider (and callback/token/userinfo endpoints)
                       "/auth/oauth2/**",   //the new oauth2 initiate urls (per provider)
                       "/login/**"          //built-in login select page (handy during local debug)

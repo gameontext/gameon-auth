@@ -21,6 +21,8 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 
 	implementation 'com.nimbusds:nimbus-jose-jwt'
+
+	compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.7'
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
