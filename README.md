@@ -2,6 +2,17 @@
 
 Implementation of GameOn Auth project, using Spring Security.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/bfd8ece69df0405eb5165f00fefc087e)](https://www.codacy.com/app/gameontext/gameon-auth?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gameontext/gameon-auth&amp;utm_campaign=Badge_Grade)
+
+See the [application architecture description](https://gameontext.gitbooks.io/gameon-gitbook/content/microservices/) in the Game On! Docs for more information on how to use this service.
+
+## Building
+
+To build this project: 
+
+    ./gradlew build
+    docker build -t gameontext/gameon-auth auth-wlpcfg
+
 ## Overview
 
 Initial Urls:
@@ -40,5 +51,8 @@ idea, but that's how it sits for now.
 
 Twitter isn't an OAuth2 provider, so the entire Twitter flow is handled by a TwitterController (RestController) that uses twitter4j to do the login, based on code from the old auth impl.
 
+## Contributing
 
+Want to help! Pile On! 
 
+[Contributing to Game On!](CONTRIBUTING.md)
