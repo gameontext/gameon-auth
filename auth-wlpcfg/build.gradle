@@ -6,13 +6,13 @@ buildscript {
     }
 }
 
-task copyWAR(type: Copy) {
-   from '../auth-app/build/libs/auth-app-1.0.war'
-   into 'servers/gameon-auth/apps/'
-   rename("auth-app-1.0.war", "auth-app.war")
+task copyJAR(type: Copy) {
+   from '../auth-app/build/libs/auth-app-0.0.1-SNAPSHOT.jar'
+   into '.'
+   rename("auth-app-0.0.1-SNAPSHOT.jar", "app.jar")
 }
 
-task build(dependsOn: ['copyWAR']){
+task build(dependsOn: ['copyJAR']){
 }
 
 task clean {

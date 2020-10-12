@@ -1,15 +1,1 @@
-/.settings/
-/.project
-.*.swp
-/servers/*/apps
-/servers/*/lib
-/servers/*/logs
-/servers/*/workarea
-/servers/.pid
-/servers/*/resources
-/servers/*/configDropins/defaults
-/servers/*/configDropins/overrides
-/build/
-/servers/.classCache
-/target
-/servers/gameon-auth/defaultServer
+app.jar
