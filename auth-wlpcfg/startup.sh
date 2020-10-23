@@ -1,11 +1,10 @@
 #!/bin/bash
 
 export CONTAINER_NAME=auth
+start_path=${PWD}
 
-certpath=/tmp/java-ssl/
-mkdir -p ${certpath}
-
-cp $JAVA_HOME/jre/lib/security/cacerts ${certpath}/cacerts
+# pre-created keystores should be mounted here (rather than cert.pem)
+ssl_path=/auth/ssl/
 
 if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   echo Setting up etcd...
@@ -23,7 +22,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   done
   echo "etcdctl returned sucessfully, continuing"
 
-  etcdctl get /proxy/third-party-ssl-cert > ${certpath}/cert.pem
+  etcdctl get /proxy/third-party-ssl-cert > ${ssl_path}/cert.pem
 
   #export SYSTEM_ID=$(etcdctl get /global/system_id)
 
@@ -46,33 +45,19 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
 fi
 
 if [ -f /etc/cert/cert.pem ]; then
-  cp /etc/cert/cert.pem ${certpath}/cert.pem
+  cp /etc/cert/cert.pem ${ssl_path}/cert.pem
 fi
 
-
-# Container has requested we use the supplied cert for auth.
-if [ -f ${certpath}/cert.pem ]; then
-  echo "Building keystore/truststore from cert.pem"
-  echo "-converting pem to pkcs12"
-  openssl pkcs12 -passin pass:keystore -passout pass:keystore -export -out ${certpath}/cert.pkcs12 -in ${certpath}/cert.pem
-  echo "-creating dummy key.jks"
-  keytool -genkey -storepass testOnlyKeystore -keypass wefwef -keyalg RSA -alias endeca -keystore ${certpath}/key.jks -dname CN=rsssl,OU=unknown,O=unknown,L=unknown,ST=unknown,C=CA
-  echo "-emptying key.jks"
-  keytool -delete -storepass testOnlyKeystore -alias endeca -keystore ${certpath}/key.jks
-  echo "-importing pkcs12 to key.jks"
-  keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore ${certpath}/cert.pkcs12 -srcstoretype PKCS12 -destkeystore ${certpath}/key.jks -deststoretype JKS
-
-  echo "-importing pem to truststore"
-  keytool -import -v -trustcacerts -alias default -file ${certpath}/cert.pem -storepass changeit -keypass keystore -noprompt -keystore ${certpath}/cacerts
-  echo "done"
-fi
+# Make sure keystores are present or are generated
+/opt/gen-keystore.sh ${ssl_path} ${ssl_path}
 
 XTRA_ARGS=""
 if [ "${GAMEON_MODE}" == "development" ]; then
   XTRA_ARGS="--spring.profiles.active=dummyauth"
 fi
 
-exec java -Djavax.net.ssl.trustStore=${certpath}/cacerts \
-    -Djavax.net.ssl.trustStorePassword=changeit \
-    -Djava.security.egd=file:/dev/./urandom -jar /app.jar \
-    --spring.profiles.active=default ${XTRA_ARGS}
+exec java \
+  -Djavax.net.ssl.trustStore=${ssl_path}/truststore.jks \
+  -Djavax.net.ssl.trustStorePassword=gameontext-trust \
+  -Djava.security.egd=file:/dev/./urandom -jar /app.jar \
+  --spring.profiles.active=default ${XTRA_ARGS}
