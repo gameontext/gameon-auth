@@ -73,6 +73,6 @@ if [ "${GAMEON_MODE}" == "development" ]; then
 fi
 
 exec java -Djavax.net.ssl.trustStore=${certpath}/cacerts \
-    -Djavax.net.ssl.trustStorePassword=changeit
+    -Djavax.net.ssl.trustStorePassword=changeit \
     -Djava.security.egd=file:/dev/./urandom -jar /app.jar \
     --spring.profiles.active=default ${XTRA_ARGS}
