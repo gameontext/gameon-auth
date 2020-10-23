@@ -8,10 +8,14 @@ RUN curl -L -s -o etcd-v${ETCD_VERSION}-linux-amd64.tar.gz https://github.com/co
   && rm etcd-v${ETCD_VERSION}-linux-amd64.tar.gz \
   && mv etcdctl /usr/local/bin/etcdctl
 
+ADD https://raw.githubusercontent.com/gameontext/gameon/master/bin/gen-keystore.sh /gen-keystore.sh
+RUN chmod g+rwx /gen-keystore.sh \
+ && mkdir -p /auth/ssl \
+ && chown -R 1001:0 /auth
 COPY app.jar /
 COPY startup.sh /
 
-RUN mkdir /etc/certs && chmod 777 /etc/certs
+USER 1001:0
 
 CMD ["/startup.sh"]
 
