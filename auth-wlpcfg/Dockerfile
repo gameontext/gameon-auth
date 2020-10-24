@@ -11,7 +11,8 @@ RUN curl -L -s -o etcd-v${ETCD_VERSION}-linux-amd64.tar.gz https://github.com/co
 ADD https://raw.githubusercontent.com/gameontext/gameon/master/bin/gen-keystore.sh /gen-keystore.sh
 RUN chmod g+rwx /gen-keystore.sh \
  && mkdir -p /auth/ssl \
- && chown -R 1001:0 /auth
+ && chown -R 1001:0 /auth \
+ && chmod -R 0777 /opt/java/.scc
 COPY app.jar /
 COPY startup.sh /
 
