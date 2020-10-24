@@ -2,11 +2,12 @@
 
 export CONTAINER_NAME=auth
 
+src_path=/auth
 # pre-created keystores should be mounted here (rather than cert.pem)
 ssl_path=/auth/ssl/
 
 if [ -f /etc/cert/cert.pem ]; then
-  cp -f /etc/cert/cert.pem ${ssl_path}/cert.pem
+  cp -f /etc/cert/cert.pem ${src_path}/cert.pem
 fi
 
 if [ "$ETCDCTL_ENDPOINT" != "" ]; then
@@ -25,7 +26,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   done
   echo "etcdctl returned sucessfully, continuing"
 
-  etcdctl get /proxy/third-party-ssl-cert > ${ssl_path}/cert.pem
+  etcdctl get /proxy/third-party-ssl-cert > ${src_path}/cert.pem
 
   #export SYSTEM_ID=$(etcdctl get /global/system_id)
 
@@ -48,7 +49,7 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
 fi
 
 # Make sure keystores are present or are generated
-/gen-keystore.sh ${ssl_path} ${ssl_path}
+/gen-keystore.sh ${src_path} ${ssl_path}
 
 XTRA_ARGS=""
 if [ "${GAMEON_MODE}" == "development" ]; then
