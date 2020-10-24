@@ -48,7 +48,7 @@ if [ -f /etc/cert/cert.pem ]; then
 fi
 
 # Make sure keystores are present or are generated
-/opt/gen-keystore.sh ${ssl_path} ${ssl_path}
+/gen-keystore.sh ${ssl_path} ${ssl_path}
 
 XTRA_ARGS=""
 if [ "${GAMEON_MODE}" == "development" ]; then
