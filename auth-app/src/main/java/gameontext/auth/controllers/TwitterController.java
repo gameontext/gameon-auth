@@ -183,12 +183,9 @@ public class TwitterController {
         
         try{
             System.out.println("Building redirect for "+redirectUrl);
-
-            // send the user to twitter to be authenticated
             URI redirect = new URI(redirectUrl);
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(redirect);
-
             return new ResponseEntity<>(headers,HttpStatus.FOUND);
         } catch (Exception e){
             e.printStackTrace();
