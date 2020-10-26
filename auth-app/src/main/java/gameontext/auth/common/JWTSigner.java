@@ -92,7 +92,14 @@ public class JWTSigner {
      *             if there are keystore issues.
      */
     public String createJwt(String id,
-                            String name) throws IOException, JOSEException {
+                            String name)throws IOException, JOSEException {
+      return createJwt(id, name, null, null);
+    }
+
+    public String createJwt(String id,
+                            String name,
+                            String storyid,
+                            String playerMode) throws IOException, JOSEException {
         if (signingKey == null) {
             getKeyStoreInfo();
         }
@@ -111,11 +118,19 @@ public class JWTSigner {
         //     .expiresAt(expiresAt)
         //     .build();
 
-        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
             .subject(id)
             .claim("id",id)
-            .claim("name",name)
-            .audience("client")
+            .claim("name",name);
+        
+        if(storyid!=null) {
+            claimsBuilder = claimsBuilder.claim("story", storyid);
+        }
+        if(playerMode!=null) {
+          claimsBuilder = claimsBuilder.claim("playerMode", playerMode);
+        }
+        
+        JWTClaimsSet claims = claimsBuilder.audience("client")
             .issueTime(Date.from(issuedAt))
             .expirationTime(Date.from(expiresAt))
             .build();
