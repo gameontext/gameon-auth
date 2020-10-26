@@ -17,8 +17,8 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
       RC=$?
   done
   echo "etcdctl returned sucessfully, continuing"
- 
-  etcdctl get /proxy/third-party-ssl-cert > /etc/cert/cert.pem
+
+  etcdctl get /proxy/third-party-ssl-cert > ${src_path}/cert.pem
 
   #export SYSTEM_ID=$(etcdctl get /global/system_id)
 
@@ -38,30 +38,18 @@ if [ "$ETCDCTL_ENDPOINT" != "" ]; then
   GAMEON_MODE=$(etcdctl get /global/mode)
   export GAMEON_MODE=${GAMEON_MODE:-production}
   export TARGET_PLATFORM=$(etcdctl get /global/targetPlatform)
-
 fi
 
-cp $JAVA_HOME/jre/lib/security/cacerts /etc/certs/cacerts
-if [ -f /etc/cert/cert.pem ]; then
-# Container has requested we use the supplied cert for auth.
-  echo "Building keystore/truststore from cert.pem"
-  echo "-converting pem to pkcs12"
-  openssl pkcs12 -passin pass:keystore -passout pass:keystore -export -out /etc/certs/cert.pkcs12 -in /etc/cert/cert.pem
-  echo "-creating dummy key.jks"
-  keytool -genkey -storepass testOnlyKeystore -keypass wefwef -keyalg RSA -alias endeca -keystore /etc/certs/key.jks -dname CN=rsssl,OU=unknown,O=unknown,L=unknown,ST=unknown,C=CA
-  echo "-emptying key.jks"
-  keytool -delete -storepass testOnlyKeystore -alias endeca -keystore /etc/certs/key.jks
-  echo "-importing pkcs12 to key.jks"
-  keytool -v -importkeystore -srcalias 1 -alias 1 -destalias default -noprompt -srcstorepass keystore -deststorepass testOnlyKeystore -srckeypass keystore -destkeypass testOnlyKeystore -srckeystore /etc/certs/cert.pkcs12 -srcstoretype PKCS12 -destkeystore /etc/certs/key.jks -deststoretype JKS
-
-  echo "-importing pem to truststore"
-  keytool -import -v -trustcacerts -alias default -file /etc/cert/cert.pem -storepass changeit -keypass keystore -noprompt -keystore /etc/certs/cacerts
-  echo "done"
-fi
+# Make sure keystores are present or are generated
+/gen-keystore.sh ${src_path} ${ssl_path}
 
 XTRA_ARGS=""
 if [ "${GAMEON_MODE}" == "development" ]; then
   XTRA_ARGS="--spring.profiles.active=dummyauth"
 fi
 
-java -Djavax.net.ssl.trustStore=/etc/certs/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djava.security.egd=file:/dev/./urandom -jar /app.jar --spring.profiles.active=default ${XTRA_ARGS}
+exec java \
+  -Djavax.net.ssl.trustStore=${ssl_path}/truststore.jks \
+  -Djavax.net.ssl.trustStorePassword=gameontext-trust \
+  -Djava.security.egd=file:/dev/./urandom -jar /app.jar \
+  --spring.profiles.active=default ${XTRA_ARGS}
