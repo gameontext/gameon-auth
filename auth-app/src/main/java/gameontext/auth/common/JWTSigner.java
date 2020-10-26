@@ -98,8 +98,8 @@ public class JWTSigner {
 
     public String createJwt(String id,
                             String name,
-                            String storyid,
-                            String playerMode) throws IOException, JOSEException {
+                            String playerMode,
+                            String storyid) throws IOException, JOSEException {
         if (signingKey == null) {
             getKeyStoreInfo();
         }
