@@ -2,6 +2,7 @@ package gameontext.auth.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -30,18 +31,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                       "/auth/GitHubAuth",  //old auth compat url
                       "/auth/FacebookAuth",//old auth compat url
                       "/auth/health",      //health check for docker/k8s
-                      "/auth/TwitterAuth",     //twitter controller auth compat url
-                      "/auth/TwitterCallback", //twitter controller callback url.
-                      "/auth/RedHatAuth/**",   //redhat controller auth compat url
-                      "/auth/RedHatCallback",  //redhat controller callback url.                             
+                      "/auth/TwitterAuth",       //twitter controller auth compat url
+                      "/auth/TwitterCallback",   //twitter controller callback url.
+                      "/auth/RedHatAuth",        //redhat controller auth url
                       "/auth/PublicCertificate", //public cert endpoint used by browser
                       "/auth/dummy/**",    //the new dummy auth provider (and callback/token/userinfo endpoints)
                       "/auth/oauth2/**",   //the new oauth2 initiate urls (per provider)
                       "/login/**"          //built-in login select page (handy during local debug)
-                      ).permitAll()        
+                      ).permitAll()
          .anyRequest().authenticated()
          .and()
-           .csrf().ignoringAntMatchers("/auth/dummy/fake/**")         
+           .csrf().ignoringAntMatchers("/auth/dummy/fake/**")
          .and()
            .oauth2Login()          
              .authorizationEndpoint()
