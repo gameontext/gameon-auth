@@ -27,6 +27,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -34,10 +37,6 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 
 /**
  * Handle generation of JWT auth credentials for the GameOn environment.
@@ -57,8 +56,7 @@ public class JWTSigner {
     /**
      * Obtain the key we'll use to sign the jwts we issue.
      *
-     * @throws IOException
-     *             if there are any issues with the keystore processing.
+     * @throws IOException if there are any issues with the keystore processing.
      */
     private synchronized void getKeyStoreInfo() throws IOException {
         try {
@@ -85,61 +83,51 @@ public class JWTSigner {
     /**
      * Obtain a JWT with the details passed, signed appropriately
      *
-     * @param id UserID to encode.
+     * @param id   UserID to encode.
      * @param name Human Readable Name for User
      * @return jwt encoded as string, ready to send to http.
-     * @throws IOException
-     *             if there are keystore issues.
+     * @throws IOException if there are keystore issues.
      */
-    public String createJwt(String id,
-                            String name)throws IOException, JOSEException {
-      return createJwt(id, name, null, null);
+    public String createJwt(String id, String name) throws IOException, JOSEException {
+        return createJwt(id, name, null, null);
     }
 
-    public String createJwt(String id,
-                            String name,
-                            String playerMode,
-                            String storyid) throws IOException, JOSEException {
+    public String createJwt(String id, String name, String playerMode, String storyid)
+            throws IOException, JOSEException {
         if (signingKey == null) {
             getKeyStoreInfo();
         }
 
-        Instant issuedAt = Instant.now().minus(12,ChronoUnit.HOURS);
-        Instant expiresAt = Instant.now().plus(12,ChronoUnit.HOURS);
+        Instant issuedAt = Instant.now().minus(12, ChronoUnit.HOURS);
+        Instant expiresAt = Instant.now().plus(12, ChronoUnit.HOURS);
 
         // Spring API to build Jwt, no signing/serializing possible?
         // Jwt jwt = Jwt.withTokenValue("FISH")
-        //     .header("kid","playerssl")
-        //     .subject(id)
-        //     .claim("id",id)
-        //     .claim("name",name)
-        //     .audience(Collections.singleton("client"))
-        //     .issuedAt(issuedAt)
-        //     .expiresAt(expiresAt)
-        //     .build();
+        // .header("kid","playerssl")
+        // .subject(id)
+        // .claim("id",id)
+        // .claim("name",name)
+        // .audience(Collections.singleton("client"))
+        // .issuedAt(issuedAt)
+        // .expiresAt(expiresAt)
+        // .build();
 
-        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
-            .subject(id)
-            .claim("id",id)
-            .claim("name",name);
-        
-        if(storyid!=null) {
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder().subject(id).claim("id", id).claim("name", name);
+
+        if (storyid != null) {
             claimsBuilder = claimsBuilder.claim("story", storyid);
         }
-        if(playerMode!=null) {
-          claimsBuilder = claimsBuilder.claim("playerMode", playerMode);
+        if (playerMode != null) {
+            claimsBuilder = claimsBuilder.claim("playerMode", playerMode);
         }
-        
-        JWTClaimsSet claims = claimsBuilder.audience("client")
-            .issueTime(Date.from(issuedAt))
-            .expirationTime(Date.from(expiresAt))
-            .build();
 
-        SignedJWT jwt = new SignedJWT( new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("playerssl").build(), 
-                                       claims);
+        JWTClaimsSet claims = claimsBuilder.audience("client").issueTime(Date.from(issuedAt))
+                .expirationTime(Date.from(expiresAt)).build();
+
+        SignedJWT jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("playerssl").build(), claims);
 
         JWSSigner signer = new RSASSASigner(signingKey);
-        
+
         jwt.sign(signer);
 
         return jwt.serialize();

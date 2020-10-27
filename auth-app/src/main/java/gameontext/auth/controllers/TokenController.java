@@ -1,5 +1,7 @@
 package gameontext.auth.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,67 +18,69 @@ import gameontext.auth.common.JWTSigner;
 @RequestMapping("/")
 public class TokenController {
 
+    Logger log = LoggerFactory.getLogger(TokenController.class);
+
     @Autowired
     JWTSigner jwtSigner;
 
     @Value("${frontend.success.callback}")
-	private String successUrl;
+    private String successUrl;
 
-    //needs to be on a path that _does_ require auth, else we don't get the token
+    // needs to be on a path that _does_ require auth, else we don't get the token
     @RequestMapping(value = "/auth/token", method = RequestMethod.GET)
-    public ResponseEntity<String> ozzy(OAuth2AuthenticationToken token) throws Exception{
+    public ResponseEntity<String> ozzy(OAuth2AuthenticationToken token) throws Exception {
 
-        System.out.println("Token endpoint invoked ");
-        System.out.println("Token: "+token);
+        log.debug("Token endpoint invoked ");
+        log.debug("Token: " + token);
 
         String clientId = token.getAuthorizedClientRegistrationId();
 
-        String id="";
-        String name="";
-        switch(clientId){
-            case "dummy" : {
-                id = "dummy:"+token.getPrincipal().getName();
-                name = token.getPrincipal().getAttribute("login");
-                break;
-            }            
-            case "github" : {
-                id = "github:"+token.getPrincipal().getName();
-                name = token.getPrincipal().getAttribute("login");
-                break;
+        String id = "";
+        String name = "";
+        switch (clientId) {
+        case "dummy": {
+            id = "dummy:" + token.getPrincipal().getName();
+            name = token.getPrincipal().getAttribute("login");
+            break;
+        }
+        case "github": {
+            id = "github:" + token.getPrincipal().getName();
+            name = token.getPrincipal().getAttribute("login");
+            break;
+        }
+        case "google": {
+            id = "google:" + token.getPrincipal().getName();
+            name = token.getPrincipal().getAttribute("name");
+            if (name != null) {
+                name = name.replaceAll(" ", "");
+            } else {
+                name = "Unknown";
             }
-            case "google" : {
-                id = "google:"+token.getPrincipal().getName();
-                name = token.getPrincipal().getAttribute("name");
-                if(name!=null){
-                    name = name.replaceAll(" ","");
-                }else{
-                    name = "Unknown";
-                }
-                break;
+            break;
+        }
+        case "facebook": {
+            id = "facebook:" + token.getPrincipal().getName();
+            name = token.getPrincipal().getAttribute("name");
+            if (name != null) {
+                name = name.replaceAll(" ", "");
+            } else {
+                name = "Unknown";
             }
-            case "facebook" : {
-                id = "facebook:"+token.getPrincipal().getName();
-                name = token.getPrincipal().getAttribute("name");
-                if(name!=null){
-                    name = name.replaceAll(" ","");
-                }else{
-                    name = "Unknown";
-                }
-                break;
-            }            
-			default: {
-				throw new IllegalArgumentException("Unknown Connection Type "+clientId);
-			}
+            break;
+        }
+        default: {
+            throw new IllegalArgumentException("Unknown Connection Type " + clientId);
+        }
         }
 
-        System.out.println("id: "+id);
-        System.out.println("name: "+name);
-        //String jwt = "id: "+id+"\nname: "+name; /
-        //return new ResponseEntity<String>("Done. "+jwt, HttpStatus.OK);
+        log.debug("id: " + id);
+        log.debug("name: " + name);
+        // String jwt = "id: "+id+"\nname: "+name; /
+        // return new ResponseEntity<String>("Done. "+jwt, HttpStatus.OK);
 
         String jwt = jwtSigner.createJwt(id, name);
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Location", successUrl + "/" + jwt);
-        return new ResponseEntity<String>(headers,HttpStatus.FOUND);    
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", successUrl + "/" + jwt);
+        return new ResponseEntity<String>(headers, HttpStatus.FOUND);
     }
 }

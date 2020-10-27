@@ -11,12 +11,16 @@ import java.security.cert.CertificateException;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PublicCertificateController {
+    Logger log = LoggerFactory.getLogger(PublicCertificateController.class);
+
     @Value("${jwt.keystore.location}")
     protected String keyStore;
     @Value("${jwt.keystore.password}")
@@ -26,9 +30,10 @@ public class PublicCertificateController {
 
     private java.security.cert.Certificate publicCert = null;
 
-    private void initPublicCert() throws IOException{
+    private void initPublicCert() throws IOException {
         try {
-            System.out.println("Loading "+String.valueOf(keyStoreAlias)+" from "+String.valueOf(keyStore)+" with pw len "+(keyStorePW==null?"null":keyStorePW.length()));
+            log.debug("Loading " + String.valueOf(keyStoreAlias) + " from " + String.valueOf(keyStore) + " with pw len "
+                    + (keyStorePW == null ? "null" : keyStorePW.length()));
             // load up the keystore..
             FileInputStream is = new FileInputStream(keyStore);
             KeyStore signingKeystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -37,7 +42,7 @@ public class PublicCertificateController {
             // grab the key we'll publish for others to verify our trust.
             publicCert = signingKeystore.getCertificate(keyStoreAlias);
 
-        }catch (KeyStoreException e) {
+        } catch (KeyStoreException e) {
             throw new IOException(e);
         } catch (NoSuchAlgorithmException e) {
             throw new IOException(e);
@@ -46,9 +51,9 @@ public class PublicCertificateController {
         }
     }
 
-    @GetMapping(value="/auth/PublicCertificate")
-    public void pubCert(HttpServletResponse response) throws IOException{
-        if(publicCert==null){
+    @GetMapping(value = "/auth/PublicCertificate")
+    public void pubCert(HttpServletResponse response) throws IOException {
+        if (publicCert == null) {
             initPublicCert();
         }
 
