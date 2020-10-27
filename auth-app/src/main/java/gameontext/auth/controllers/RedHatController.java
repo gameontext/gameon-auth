@@ -96,7 +96,7 @@ public class RedHatController {
           redirectUrl = callbackFailure;
         } else {
           String id = "redhat:" + groupid + ":" + name;
-          String newJwt = jwtSigner.createJwt(id, name, "redhat.colab.breakingthecode", "guided");
+          String newJwt = jwtSigner.createJwt(id, name, "guided", "redhat.colab.breakingthecode");
           //System.out.println("Login succeeded, sending user to success " + callbackSuccess + "/newJwt");
           redirectUrl = callbackSuccess + "/" + newJwt;
         }
