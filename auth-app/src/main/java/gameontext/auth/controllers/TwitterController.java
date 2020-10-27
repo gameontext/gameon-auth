@@ -1,27 +1,27 @@
 package gameontext.auth.controllers;
 
-import com.nimbusds.jose.JOSEException;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Value;
 
+import com.nimbusds.jose.JOSEException;
+
+import gameontext.auth.common.JWTSigner;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -30,11 +30,11 @@ import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.conf.ConfigurationBuilder;
 
-import gameontext.auth.common.JWTSigner;
-
 @RestController
 public class TwitterController {
 
+    Logger log = LoggerFactory.getLogger(TwitterController.class);
+    
     @Value("${gameon.twitterOAuthConsumerKey}")
     private String key;
     @Value("${gameon.twitterOAuthConsumerSecret}")
@@ -43,16 +43,15 @@ public class TwitterController {
     private String authURL;
 
     @Value("${frontend.success.callback}")
-	private String callbackSuccess;
+    private String callbackSuccess;
     @Value("${frontend.failure.callback}")
     private String callbackFailure;
 
     @Autowired
-    JWTSigner jwtSigner;   
+    JWTSigner jwtSigner;
 
     @GetMapping("/auth/TwitterAuth")
-    public ResponseEntity<Object> tauth(HttpServletRequest httpServletRequest)
-      throws IOException, URISyntaxException{
+    public ResponseEntity<Object> tauth(HttpServletRequest httpServletRequest) throws IOException, URISyntaxException {
 
         ConfigurationBuilder c = new ConfigurationBuilder();
         c.setOAuthConsumerKey(key).setOAuthConsumerSecret(secret);
@@ -77,38 +76,31 @@ public class TwitterController {
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(redirect);
 
-            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
         } catch (Exception e) {
-            //don't return the real cause, in case it goes back to the end user.
-            //instead dump it to the log
-            e.printStackTrace();
+            // don't return the real cause, in case it goes back to the end user.
+            // instead dump it to the log
+            log.error("Error processing twitter invocation", e);
             throw new IOException("Unable to invoke twitter authentication");
         }
-    }   
-    
+    }
 
     /**
-     * Method that performs introspection on an AUTH string, and returns data as
-     * a String->String hashmap.
+     * Method that performs introspection on an AUTH string, and returns data as a
+     * String->String hashmap.
      *
-     * @param auth
-     *            the authstring to query, as built by an auth impl.
+     * @param auth the authstring to query, as built by an auth impl.
      * @return the data from the introspect, in a map.
-     * @throws IOException
-     *             if anything goes wrong.
+     * @throws IOException if anything goes wrong.
      */
     public Map<String, String> introspectAuth(String token, String tokensecret) throws IOException {
 
         Map<String, String> results = new HashMap<String, String>();
 
         ConfigurationBuilder c = new ConfigurationBuilder();
-        c.setOAuthConsumerKey(key)
-         .setOAuthConsumerSecret(secret)
-         .setOAuthAccessToken(token)
-         .setOAuthAccessTokenSecret(tokensecret)
-         .setIncludeEmailEnabled(false)
-         .setJSONStoreEnabled(true);
+        c.setOAuthConsumerKey(key).setOAuthConsumerSecret(secret).setOAuthAccessToken(token)
+                .setOAuthAccessTokenSecret(tokensecret).setIncludeEmailEnabled(false).setJSONStoreEnabled(true);
 
         Twitter twitter = new TwitterFactory(c.build()).getInstance();
 
@@ -132,10 +124,11 @@ public class TwitterController {
     }
 
     @GetMapping("/auth/TwitterCallback")
-    public ResponseEntity<Object> callback(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-      throws IOException, URISyntaxException { 
+    public ResponseEntity<Object> callback(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) throws IOException, URISyntaxException {
         // twitter calls us back at this app when a user has finished authing with them.
-        // when it calls us back here, it passes an oauth_verifier token that we can exchange
+        // when it calls us back here, it passes an oauth_verifier token that we can
+        // exchange
         // for a twitter access token.
 
         // we stashed our twitter & request token into the session, we'll need
@@ -143,14 +136,14 @@ public class TwitterController {
         Twitter twitter = (Twitter) httpServletRequest.getSession().getAttribute("twitter");
         RequestToken requestToken = (RequestToken) httpServletRequest.getSession().getAttribute("requestToken");
 
-        String redirectUrl="";
+        String redirectUrl = "";
 
         // grab the verifier token from the request parms.
         String verifier = httpServletRequest.getParameter("oauth_verifier");
-        if(verifier == null){
-            //user elected to decline auth? redirect to fail url.
-            redirectUrl=callbackFailure;
-        }else{
+        if (verifier == null) {
+            // user elected to decline auth? redirect to fail url.
+            redirectUrl = callbackFailure;
+        } else {
             try {
                 // clean up the session as we go (can leave twitter there if we need
                 // it again).
@@ -163,35 +156,35 @@ public class TwitterController {
                 // if auth key was no longer valid, we won't build a jwt. redirect
                 // to failure url.
                 if (!"true".equals(claims.get("valid"))) {
-                    System.out.println("Login fail, sending user to failure "+callbackFailure);
-                    redirectUrl=callbackFailure;
+                    log.debug("Login fail, sending user to failure " + callbackFailure);
+                    redirectUrl = callbackFailure;
                 } else {
                     String id = claims.get("id");
                     String name = claims.get("name");
 
-                    String newJwt = jwtSigner.createJwt(id, name);                    
+                    String newJwt = jwtSigner.createJwt(id, name);
 
-                    System.out.println("Login succeeded, sending user to success "+callbackSuccess+"/newJwt");
-                    redirectUrl=callbackSuccess + "/" + newJwt;
+                    log.debug("Login succeeded, sending user to success " + callbackSuccess + "/newJwt");
+                    redirectUrl = callbackSuccess + "/" + newJwt;
                 }
 
             } catch (TwitterException | JOSEException e) {
-                e.printStackTrace();
+                log.error("Error processing twitter callback", e);
                 throw new IOException("Unable to process twitter callback");
             }
-        }  
-        
-        try{
-            System.out.println("Building redirect for "+redirectUrl);
+        }
+
+        try {
+            log.debug("Building redirect for " + redirectUrl);
 
             // send the user to twitter to be authenticated
             URI redirect = new URI(redirectUrl);
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(redirect);
 
-            return new ResponseEntity<>(headers,HttpStatus.FOUND);
-        } catch (Exception e){
-            e.printStackTrace();
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        } catch (Exception e) {
+            log.error("Error processing twitter forwarding", e);
             throw new IOException("Unable to forward to redirect url");
         }
     }
