@@ -12,6 +12,7 @@ ADD https://raw.githubusercontent.com/gameontext/gameon/master/bin/gen-keystore.
 RUN chmod g+rwx /gen-keystore.sh \
  && mkdir -p /auth/ssl \
  && chown -R 1001:0 /auth \
+ && chmod -R g+rwx /auth \
  && chmod -R 0777 /opt/java/.scc
 COPY app.jar /
 COPY startup.sh /
